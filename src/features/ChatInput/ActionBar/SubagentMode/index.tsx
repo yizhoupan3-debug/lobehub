@@ -29,9 +29,9 @@ const SubagentMode = memo(() => {
       <ActionIcon
         active={isSubagentMode}
         icon={Network}
-        onClick={() => toggleSubagentMode()}
         placement={'bottom'}
         title={t('input.subagentMode', 'Subagent Mode')}
+        onClick={() => toggleSubagentMode()}
       />
     </motion.div>
   );

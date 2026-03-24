@@ -74,14 +74,14 @@ const FolderPickerButton = memo(() => {
 
       {/* Hidden file input for fallback */}
       <input
-        ref={inputRef}
-        accept="*/*"
         multiple
+        accept="*/*"
+        ref={inputRef}
         style={{ display: 'none' }}
+        onChange={handleInputChange}
         type="file"
         // @ts-ignore — non-standard but widely supported
         webkitdirectory=""
-        onChange={handleInputChange}
       />
     </>
   );

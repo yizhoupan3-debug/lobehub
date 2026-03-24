@@ -1,16 +1,16 @@
 import useSWR from 'swr';
 
 export interface AutomationTask {
-  id: string;
-  name: string;
-  status: 'ACTIVE' | 'PAUSED' | 'UNKNOWN' | string;
-  rrule: string;
-  prompt: string;
-  model: string;
-  execution_environment: string;
   created_at: number;
-  updated_at: number;
   cwds: string[];
+  execution_environment: string;
+  id: string;
+  model: string;
+  name: string;
+  prompt: string;
+  rrule: string;
+  status: 'ACTIVE' | 'PAUSED' | 'UNKNOWN' | string;
+  updated_at: number;
 }
 
 export interface AutomationsResponse {

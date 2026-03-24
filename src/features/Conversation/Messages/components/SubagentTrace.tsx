@@ -1,15 +1,15 @@
 import { ActionIcon, Flexbox } from '@lobehub/ui';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Network, ChevronDown, ChevronRight, Activity } from 'lucide-react';
+import { AnimatePresence,motion } from 'framer-motion';
+import { Activity,ChevronDown, ChevronRight, Network } from 'lucide-react';
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Markdown } from '@/components/Markdown';
 
 interface SubagentTraceProps {
-  traces: string[];
-  mode?: 'workspace' | 'session';
   generating?: boolean;
+  mode?: 'workspace' | 'session';
+  traces: string[];
 }
 
 const SubagentTrace = memo<SubagentTraceProps>(({ traces, mode = 'session', generating = false }) => {
@@ -31,10 +31,9 @@ const SubagentTrace = memo<SubagentTraceProps>(({ traces, mode = 'session', gene
       }}
     >
       <Flexbox
+        horizontal
         align={'center'}
         gap={8}
-        horizontal
-        onClick={() => setExpanded(!expanded)}
         style={{
           padding: '8px 12px',
           cursor: 'pointer',
@@ -44,6 +43,7 @@ const SubagentTrace = memo<SubagentTraceProps>(({ traces, mode = 'session', gene
           borderBottom: expanded ? '1px solid var(--color-border-secondary)' : 'none',
           transition: 'all 0.2s ease-in-out',
         }}
+        onClick={() => setExpanded(!expanded)}
       >
         <ActionIcon
           icon={expanded ? ChevronDown : ChevronRight}
@@ -70,8 +70,8 @@ const SubagentTrace = memo<SubagentTraceProps>(({ traces, mode = 'session', gene
           </span>
           {!generating && (
             <motion.div
-              initial={{ scale: 0 }}
               animate={{ scale: 1 }}
+              initial={{ scale: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               style={{
                 width: 8,
@@ -83,8 +83,8 @@ const SubagentTrace = memo<SubagentTraceProps>(({ traces, mode = 'session', gene
           )}
           {expanded && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               transition={{ delay: 0.1 }}
             >
               <Activity size={14} style={{ color: 'var(--color-primary)' }} />
@@ -96,18 +96,18 @@ const SubagentTrace = memo<SubagentTraceProps>(({ traces, mode = 'session', gene
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            initial={{ height: 0, opacity: 0 }}
             style={{ overflow: 'hidden' }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
             <Flexbox gap={8} style={{ padding: '8px 12px' }}>
               {traces.map((trace, index) => (
                 <motion.div
-                  key={index}
-                  initial={{ x: -5, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
+                  initial={{ x: -5, opacity: 0 }}
+                  key={index}
                   transition={{ delay: index * 0.05 + 0.1, duration: 0.3 }}
                 >
                   <Flexbox

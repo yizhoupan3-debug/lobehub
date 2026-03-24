@@ -1,8 +1,8 @@
 import { ActionIcon } from '@lobehub/ui';
-import { Dropdown } from 'antd';
-import { Plus, ListTodo, AtSign, Sparkles } from 'lucide-react';
-import { memo } from 'react';
 import type { MenuProps } from 'antd';
+import { Dropdown } from 'antd';
+import { AtSign, ListTodo, Plus, Sparkles } from 'lucide-react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useChatInputStore } from '../../store';

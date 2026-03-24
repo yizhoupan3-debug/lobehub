@@ -1,66 +1,79 @@
-import { memo } from 'react';
 import { createStyles } from 'antd-style';
 import { Bot, Sparkles } from 'lucide-react';
+import { memo } from 'react';
 
 import AutomationList from './features/AutomationList';
 
 const useStyles = createStyles(({ css, token }) => ({
   container: css`
+    scroll-behavior: smooth;
+
+    overflow: hidden auto;
+
     width: 100%;
     height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 0 40px;
-    scroll-behavior: smooth;
+    padding-block: 0;
+    padding-inline: 40px;
   `,
   inner: css`
     max-width: 1200px;
-    margin: 0 auto;
-    padding-top: 60px;
+    margin-block: 0;
+    margin-inline: auto;
+    padding-block-start: 60px;
   `,
   hero: css`
     position: relative;
-    padding: 40px 0;
-    margin-bottom: 24px;
+
     display: flex;
     flex-direction: column;
     gap: 16px;
-    border-bottom: 1px solid ${token.colorBorderSecondary};
+
+    margin-block-end: 24px;
+    padding-block: 40px;
+    padding-inline: 0;
+    border-block-end: 1px solid ${token.colorBorderSecondary};
   `,
   heroBg: css`
+    pointer-events: none;
+
     position: absolute;
-    top: -50px;
-    left: -50px;
+    z-index: 0;
+    inset-block-start: -50px;
+    inset-inline-start: -50px;
+
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, ${token.colorPrimary} 0%, transparent 70%);
+
     opacity: 0.1;
+    background: radial-gradient(circle, ${token.colorPrimary} 0%, transparent 70%);
     filter: blur(40px);
-    z-index: 0;
-    pointer-events: none;
   `,
   titleWrapper: css`
     position: relative;
     z-index: 1;
+
     display: flex;
-    align-items: center;
     gap: 16px;
+    align-items: center;
   `,
   title: css`
+    margin: 0;
+
     font-size: 36px;
     font-weight: 800;
     line-height: 1.2;
-    margin: 0;
-    letter-spacing: -0.5px;
     color: ${token.colorText};
+    letter-spacing: -0.5px;
   `,
   subtitle: css`
     position: relative;
     z-index: 1;
-    font-size: 16px;
-    color: ${token.colorTextSecondary};
+
     max-width: 600px;
+
+    font-size: 16px;
     line-height: 1.6;
+    color: ${token.colorTextSecondary};
   `
 }));
 
@@ -74,7 +87,7 @@ const AutomationPage = memo(() => {
         <div className={styles.hero}>
           <div className={styles.heroBg} />
           <div className={styles.titleWrapper}>
-            <Bot size={40} color="var(--lobe-color-primary)" strokeWidth={2.5} />
+            <Bot color="var(--lobe-color-primary)" size={40} strokeWidth={2.5} />
             <h1 className={styles.title}>Codex Automations</h1>
           </div>
           <p className={styles.subtitle}>

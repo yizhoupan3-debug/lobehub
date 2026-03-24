@@ -1,7 +1,9 @@
-import { memo } from 'react';
-import { Skeleton, Empty } from 'antd';
+import { Empty,Skeleton } from 'antd';
 import { createStyles } from 'antd-style';
+import { memo } from 'react';
+
 import { useCodexAutomations } from '@/services/automation';
+
 import AutomationItem from '../AutomationItem';
 
 const useStyles = createStyles(({ css }) => ({
@@ -9,15 +11,16 @@ const useStyles = createStyles(({ css }) => ({
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 24px;
+
     width: 100%;
-    margin-top: 24px;
-    padding-bottom: 40px;
+    margin-block-start: 24px;
+    padding-block-end: 40px;
   `,
   emptyWrapper: css`
-    margin-top: 60px;
+    margin-block-start: 60px;
     padding: 60px;
     border-radius: 20px;
-    background: rgba(0, 0, 0, 0.02);
+    background: rgb(0 0 0 / 2%);
   `
 }));
 
@@ -29,7 +32,7 @@ const AutomationList = memo(() => {
     return (
       <div className={styles.grid}>
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton.Button key={i} active style={{ height: 280, width: '100%', borderRadius: 20 }} />
+          <Skeleton.Button active key={i} style={{ height: 280, width: '100%', borderRadius: 20 }} />
         ))}
       </div>
     );

@@ -5,9 +5,9 @@ import { memo } from 'react';
 
 import FileIcon from '@/components/FileIcon';
 import { useIsDark } from '@/hooks/useIsDark';
+import { useChatStore } from '@/store/chat';
 import { useGlobalStore } from '@/store/global';
 import { useHomeStore } from '@/store/home';
-import { useChatStore } from '@/store/chat';
 
 import { styles } from './style';
 
@@ -38,7 +38,7 @@ const ChunkItem = memo<ChunkItemProps>(({ id, fileId, similarity, text, filename
             url: `/api/files/download?fileId=${fileId}`, // Assuming lobe-chat file url logic
             type: ext,
             title: filename,
-            fileId: fileId
+            fileId
           });
         } else {
           openFilePreview({ chunkId: id, chunkText: text, fileId });

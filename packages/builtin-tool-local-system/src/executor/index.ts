@@ -1,4 +1,4 @@
-/* eslint-disable import-x/consistent-type-specifier-style */
+ 
 import type {
   EditLocalFileParams,
   EditLocalFileResult,
@@ -432,7 +432,7 @@ class LocalSystemExecutor extends BaseExecutor<typeof LocalSystemApiEnum> {
   createAutomation = async (params: any): Promise<BuiltinToolResult> => {
     try {
       const { id, name, prompt, rrule, status = 'ACTIVE' } = params;
-      const codexHome = process.env.CODEX_HOME || require('os').homedir() + '/.codex';
+      const codexHome = process.env.CODEX_HOME || require('node:os').homedir() + '/.codex';
       
       // Use JSON.stringify for bulletproof TOML string escaping (handles quotes, newlines, etc.)
       const tomlContent = `name = ${JSON.stringify(name)}\nstatus = ${JSON.stringify(status)}\nrrule = ${JSON.stringify(rrule)}\nmodel = "claude-3-7-sonnet"\naction_runner = "codex_agno_runtime"\n\n[[tasks]]\ntype = "prompt"\ncontent = ${JSON.stringify(prompt)}\n`;

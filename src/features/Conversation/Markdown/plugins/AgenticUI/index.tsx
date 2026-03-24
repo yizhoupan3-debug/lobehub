@@ -1,7 +1,8 @@
-import { FileText, CheckCircle, Navigation } from 'lucide-react';
+import { CheckCircle, FileText, Navigation } from 'lucide-react';
 import { type FC } from 'react';
 
 import { AgenticCard } from '@/components/AgenticUI/AgenticCard';
+
 import { type MarkdownElement, type MarkdownElementProps } from '../type';
 import createAgenticRehypePlugin from './rehypePlugin';
 

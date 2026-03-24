@@ -1,20 +1,22 @@
 import { Flexbox, Icon } from '@lobehub/ui';
 import { cx } from 'antd-style';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { memo, ReactNode, useState } from 'react';
+import type { ReactNode} from 'react';
+import { memo, useState } from 'react';
 
 import { useChatStore } from '@/store/chat';
+
 import { AgenticAstParser } from './AgenticAstParser';
 import { useStyles } from './style';
 
 export interface AgenticCardProps {
-  id: string;
+  children?: ReactNode;
   icon: any;
   iconColor: string;
-  title: string;
+  id: string;
   status: string;
   tagType: string;
-  children?: ReactNode;
+  title: string;
 }
 
 export const AgenticCard = memo<AgenticCardProps>(({ id, iconColor, title, status, tagType, children }) => {

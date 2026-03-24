@@ -1,13 +1,13 @@
 import { SESSION_CHAT_URL } from '@lobechat/const';
 import { useCallback } from 'react';
 
+import { useChatInputStore } from '@/features/ChatInput/store';
 import { useQueryRoute } from '@/hooks/useQueryRoute';
 import { useAgentStore } from '@/store/agent';
 import { builtinAgentSelectors } from '@/store/agent/selectors';
 import { useChatStore } from '@/store/chat';
 import { fileChatSelectors, useFileStore } from '@/store/file';
 import { useHomeStore } from '@/store/home';
-import { useChatInputStore } from '@/features/ChatInput/store';
 
 export const useSend = () => {
   const router = useQueryRoute();

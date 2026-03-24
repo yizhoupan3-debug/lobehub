@@ -1,11 +1,12 @@
-import { TRPCError } from '@trpc/server';
-import { z } from 'zod';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+
 import { authedProcedure, router } from '@/libs/trpc/lambda';
-import { AntigravityKnowledgeBaseItem } from '@/types/antigravityKnowledge';
+import type { AntigravityKnowledgeBaseItem } from '@/types/antigravityKnowledge';
 
 const antigravityKnowledgeProcedure = authedProcedure;
 

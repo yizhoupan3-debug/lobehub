@@ -1,6 +1,6 @@
 import { ActionIcon, Flexbox } from '@lobehub/ui';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Wifi, ChevronDown, ChevronRight, Activity } from 'lucide-react';
+import { AnimatePresence,motion } from 'framer-motion';
+import { Activity,ChevronDown, ChevronRight, Wifi } from 'lucide-react';
 import { memo, useState } from 'react';
 
 import { Markdown } from '@/components/Markdown';
@@ -27,10 +27,9 @@ const ReconnectTrace = memo<ReconnectTraceProps>(({ traces }) => {
       }}
     >
       <Flexbox
+        horizontal
         align={'center'}
         gap={12}
-        horizontal
-        onClick={() => setExpanded(!expanded)}
         style={{
           padding: '12px 16px',
           cursor: 'pointer',
@@ -40,6 +39,7 @@ const ReconnectTrace = memo<ReconnectTraceProps>(({ traces }) => {
           borderRadius: 10,
           transition: 'all 0.2s ease-in-out',
         }}
+        onClick={() => setExpanded(!expanded)}
       >
         <ActionIcon
           icon={expanded ? ChevronDown : ChevronRight}
@@ -55,8 +55,8 @@ const ReconnectTrace = memo<ReconnectTraceProps>(({ traces }) => {
         <Flexbox horizontal align={'center'} gap={8} style={{ flex: 1 }}>
           <span style={{ fontWeight: 600, letterSpacing: '0.5px' }}>
             {(() => {
-              const lastTrace = traces[traces.length - 1];
-              const errorMatch = lastTrace?.match(/error[:：\s]+(.*)/i) || lastTrace?.match(/失败[:：\s]+(.*)/i);
+              const lastTrace = traces.at(-1);
+              const errorMatch = lastTrace?.match(/error[:：\s]+(.*)/i) || lastTrace?.match(/失败[:：\s]+(.*)/);
               if (errorMatch) {
                 return `Error: ${errorMatch[1]}`;
               }
@@ -65,8 +65,8 @@ const ReconnectTrace = memo<ReconnectTraceProps>(({ traces }) => {
           </span>
           {expanded && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               transition={{ delay: 0.1 }}
             >
               <Activity size={14} style={{ color: 'var(--color-primary)' }} />
@@ -78,18 +78,18 @@ const ReconnectTrace = memo<ReconnectTraceProps>(({ traces }) => {
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            initial={{ height: 0, opacity: 0 }}
             style={{ overflow: 'hidden' }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
             <Flexbox gap={12} style={{ padding: '12px 16px' }}>
               {traces.map((trace, index) => (
                 <motion.div
-                  key={index}
-                  initial={{ x: -10, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
+                  initial={{ x: -10, opacity: 0 }}
+                  key={index}
                   transition={{ delay: index * 0.05 + 0.1, duration: 0.3 }}
                 >
                   <Flexbox

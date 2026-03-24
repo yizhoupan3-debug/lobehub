@@ -8,7 +8,7 @@ import { memo, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
 import { antigravityKnowledgeService } from '@/services/antigravityKnowledge';
-import { AntigravityKnowledgeBaseItem } from '@/types/antigravityKnowledge';
+import type { AntigravityKnowledgeBaseItem } from '@/types/antigravityKnowledge';
 
 import KnowledgeItem from './KnowledgeItem';
 
@@ -17,16 +17,19 @@ const styles = createStaticStyles(({ css }) => ({
     display: flex;
     flex-direction: column;
     gap: 24px;
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
+
     width: 100%;
+    max-width: 1200px;
+    margin-block: 0;
+    margin-inline: auto;
+    padding: 24px;
   `,
   controls: css`
     display: flex;
+    flex: 1;
     gap: 12px;
     align-items: center;
-    flex: 1;
+
     max-width: 600px;
   `,
   grid: css`
@@ -37,10 +40,10 @@ const styles = createStaticStyles(({ css }) => ({
   `,
   header: css`
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     flex-wrap: wrap;
     gap: 16px;
+    align-items: center;
+    justify-content: space-between;
   `,
 }));
 
@@ -107,16 +110,16 @@ const KnowledgeList = memo(() => {
         <div className={styles.controls}>
           <Input
             allowClear
-            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by title or summary..."
             prefix={<Search size={16} />}
             style={{ flex: 1 }}
             value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Segmented
-            onChange={(val) => setFilter(val as FilterType)}
             options={SegmentOptions}
             value={filter}
+            onChange={(val) => setFilter(val as FilterType)}
           />
         </div>
       </div>

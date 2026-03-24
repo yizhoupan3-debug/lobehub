@@ -1,8 +1,8 @@
-import { execFile } from 'child_process';
-import { existsSync } from 'fs';
-import { homedir } from 'os';
-import { isAbsolute, join } from 'path';
-import { promisify } from 'util';
+import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
+import { promisify } from 'node:util';
 
 const execFileP = promisify(execFile);
 
@@ -66,10 +66,11 @@ export async function POST(req: Request) {
     }
 
     switch (action) {
-      case 'finder':
+      case 'finder': {
         await execFileP('open', ['-a', 'Finder', targetPath]);
         break;
-      case 'ide':
+      }
+      case 'ide': {
         try {
           // Antigravity 为主
           await execFileP('open', ['-a', 'Antigravity', targetPath]);
@@ -77,16 +78,19 @@ export async function POST(req: Request) {
           throw new Error('未能在本地拉起 Antigravity，打开此目录失败');
         }
         break;
-      case 'custom_app':
+      }
+      case 'custom_app': {
         const { customAppName } = body;
         if (!customAppName) {
           throw new Error('未提供应用名称');
         }
         await execFileP('open', ['-a', customAppName, targetPath]);
         break;
-      case 'terminal':
+      }
+      case 'terminal': {
         await execFileP('open', ['-a', 'Terminal', targetPath]);
         break;
+      }
       case 'git_status': {
         try {
           const { stdout } = await execFileP('git', ['-C', targetPath, 'status', '-s']);
@@ -103,8 +107,9 @@ export async function POST(req: Request) {
           throw new Error('执行 git diff 失败');
         }
       }
-      default:
+      default: {
         return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400 });
+      }
     }
 
     return new Response(JSON.stringify({ success: true, targetPath }), { status: 200 });

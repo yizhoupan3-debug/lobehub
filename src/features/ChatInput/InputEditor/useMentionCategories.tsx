@@ -1,5 +1,5 @@
 import { Avatar, Icon } from '@lobehub/ui';
-import { Bot, MessageSquareText, Users, FileText, ListTodo, BookOpen, MessageSquare } from 'lucide-react';
+import { BookOpen, Bot, FileText, ListTodo, MessageSquare,MessageSquareText, Users } from 'lucide-react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 

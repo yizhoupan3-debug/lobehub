@@ -30,10 +30,10 @@ const ChatConversation = memo(() => {
     <Suspense fallback={<Loading debugId="Agent > ChatConversation" />}>
       <DragUploadZone style={wrapperStyle} onUploadFiles={handleUploadFiles}>
         <Flexbox
+          horizontal
           height={'100%'}
           style={{ overflow: 'hidden', position: 'relative' }}
           width={'100%'}
-          horizontal
         >
           <Flexbox
             flex={1}
