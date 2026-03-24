@@ -122,9 +122,9 @@ export class GlobalWorkspacePaneActionImpl {
   };
 
   toggleWorkspaceTree = (visible?: boolean): void => {
-    const currentMode = this.#get().status.workspaceRightPanelMode;
-    const nextMode = visible === undefined ? (currentMode === 'tree' ? false : 'tree') : (visible ? 'tree' : false);
-    this.#get().updateSystemStatus({ workspaceRightPanelMode: nextMode }, n('toggleWorkspaceTree', nextMode));
+    const showLeftPanel =
+      typeof visible === 'boolean' ? visible : !this.#get().status.showWorkspaceLeftPanel;
+    this.#get().updateSystemStatus({ showWorkspaceLeftPanel: showLeftPanel }, n('toggleWorkspaceTree', showLeftPanel));
   };
 
   openWorkspacePreview = (file: { url: string; type: string; title: string; fileId?: string }): void => {

@@ -10,6 +10,7 @@ import { systemStatusSelectors } from '@/store/global/selectors';
 
 import ConversationArea from './ConversationArea';
 import ChatHeader from './Header';
+import WorkspaceLeftPanel from './WorkspaceLeftPanel';
 import WorkspaceRightPanel from './WorkspaceRightPanel';
 
 const wrapperStyle: React.CSSProperties = {
@@ -35,10 +36,11 @@ const ChatConversation = memo(() => {
           style={{ overflow: 'hidden', position: 'relative' }}
           width={'100%'}
         >
+          <WorkspaceLeftPanel />
           <Flexbox
             flex={1}
             height={'100%'}
-            style={{ overflow: 'hidden', position: 'relative' }}
+            style={{ overflow: 'hidden', position: 'relative', minWidth: 0 }}
             width={'100%'}
           >
             {showHeader && <ChatHeader />}

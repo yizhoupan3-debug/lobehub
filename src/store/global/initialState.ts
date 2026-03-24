@@ -182,8 +182,9 @@ export interface SystemStatus {
   videoPanelWidth: number;
   videoTopicPanelWidth?: number;
   videoTopicViewMode?: 'grid' | 'list';
+  showWorkspaceLeftPanel?: boolean;
   workspacePreviewFile?: { url: string; type: string; title: string; fileId?: string } | null;
-  workspaceRightPanelMode?: 'tree' | 'preview' | false;
+  workspaceRightPanelMode?: 'preview' | false;
   zenMode?: boolean;
 }
 
@@ -267,6 +268,7 @@ export const INITIAL_STATUS = {
   videoPanelWidth: 320,
   videoTopicViewMode: 'grid' as const,
   videoTopicPanelWidth: 80,
+  showWorkspaceLeftPanel: false,
   workspacePreviewFile: null,
   workspaceRightPanelMode: false,
   zenMode: false,

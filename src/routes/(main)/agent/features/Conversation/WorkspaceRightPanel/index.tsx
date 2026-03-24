@@ -1,14 +1,13 @@
 'use client';
 
-import { ActionIcon } from '@lobehub/ui';
-import { createStyles } from 'antd-style';
-import { X } from 'lucide-react';
+import { ActionIcon, DraggablePanel } from '@lobehub/ui';
+import { createStyles, cssVar } from 'antd-style';
+import { PanelRightClose } from 'lucide-react';
 import { memo } from 'react';
 
 import { useGlobalStore } from '@/store/global';
 
 import DocumentPreviewer from './DocumentPreviewer';
-import FileTreeViewer from './FileTreeViewer';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
@@ -21,8 +20,6 @@ const useStyles = createStyles(({ token, css }) => ({
     border-inline-start: 1px solid ${token.colorBorder};
 
     background: ${token.colorBgContainer};
-
-    transition: width 0.2s ease-in-out;
   `,
   header: css`
     display: flex;
@@ -56,21 +53,28 @@ const WorkspaceRightPanel = memo(() => {
   const previewFile = useGlobalStore((s) => s.status.workspacePreviewFile);
   const closePanel = useGlobalStore((s) => s.closeWorkspaceRightPanel);
 
-  if (!mode) return null;
-
   return (
-    <div className={styles.container} style={{ width: mode === 'preview' ? '50%' : 260, maxWidth: 800 }}>
-      <div className={styles.header}>
-        <span className={styles.title}>
-          {mode === 'tree' ? '工作区文件' : previewFile?.title || '文档预览'}
-        </span>
-        <ActionIcon icon={X} size="small" title="关闭" onClick={() => closePanel()} />
+    <DraggablePanel
+      backgroundColor={cssVar.colorBgContainer}
+      expand={!!mode}
+      expandable={false}
+      minWidth={200}
+      maxWidth={800}
+      placement="right"
+      size={{ width: '33vw', height: '100%' }}
+    >
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <span className={styles.title}>
+            {previewFile?.title || '文档预览'}
+          </span>
+          <ActionIcon icon={PanelRightClose} size="small" title="关闭" onClick={() => closePanel()} />
+        </div>
+        <div className={styles.content}>
+          {mode === 'preview' && <DocumentPreviewer />}
+        </div>
       </div>
-      <div className={styles.content}>
-        {mode === 'tree' && <FileTreeViewer />}
-        {mode === 'preview' && <DocumentPreviewer />}
-      </div>
-    </div>
+    </DraggablePanel>
   );
 });
 

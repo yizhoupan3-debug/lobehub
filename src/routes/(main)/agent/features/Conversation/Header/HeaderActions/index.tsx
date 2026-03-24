@@ -15,14 +15,14 @@ const HeaderActions = memo(() => {
   const sidebarMode = useHomeStore((s) => s.sidebarMode);
   const isWorkspace = sidebarMode === 'workspace';
   
-  const rightPanelMode = useGlobalStore((s) => s.status.workspaceRightPanelMode);
+  const showWorkspaceLeftPanel = useGlobalStore((s) => s.status.showWorkspaceLeftPanel);
   const toggleTree = useGlobalStore((s) => s.toggleWorkspaceTree);
 
   return (
     <Flexbox horizontal align={'center'} gap={4}>
       {isWorkspace && (
         <ActionIcon 
-          active={rightPanelMode === 'tree'} 
+          active={showWorkspaceLeftPanel} 
           icon={FolderTree} 
           size={DESKTOP_HEADER_ICON_SIZE}
           title="切换文件目录树"
