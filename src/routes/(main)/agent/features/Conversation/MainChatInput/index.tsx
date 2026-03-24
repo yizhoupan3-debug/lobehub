@@ -27,6 +27,8 @@ const MainChatInput = memo(() => {
   const leftActions: ActionKeys[] = useMemo(
     () => [
       'model',
+      'plusMenu',
+      'subagentMode',
       'search',
       'memory',
       'fileUpload',

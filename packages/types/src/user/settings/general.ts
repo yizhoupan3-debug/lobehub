@@ -23,6 +23,7 @@ export interface UserGeneralConfig {
   primaryColor?: PrimaryColors;
   responseLanguage?: string;
   telemetry: boolean;
+  themeStyle?: 'default' | 'cursor';
   timezone?: string;
   transitionMode?: ResponseAnimationStyle;
 }

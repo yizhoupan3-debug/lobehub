@@ -38,6 +38,7 @@ export const getAppConfig = () => {
     clientPrefix: 'NEXT_PUBLIC_',
     client: {
       NEXT_PUBLIC_ENABLE_SENTRY: z.boolean(),
+      NEXT_PUBLIC_SUBAGENT_CONCURRENCY: z.coerce.number().int().min(1).max(50).default(15),
     },
     server: {
       AGENTS_INDEX_URL: z.string().url(),
@@ -87,6 +88,7 @@ export const getAppConfig = () => {
     runtimeEnv: {
       // Sentry
       NEXT_PUBLIC_ENABLE_SENTRY: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
+      NEXT_PUBLIC_SUBAGENT_CONCURRENCY: process.env.NEXT_PUBLIC_SUBAGENT_CONCURRENCY,
 
       AGENTS_INDEX_URL: !!process.env.AGENTS_INDEX_URL
         ? process.env.AGENTS_INDEX_URL

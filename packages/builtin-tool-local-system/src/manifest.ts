@@ -444,6 +444,29 @@ export const LocalSystemManifest: BuiltinToolManifest = {
         type: 'object',
       },
     },
+    {
+      description:
+        'Create a new Codex automation task. Generates an automation.toml configuration file in the codebase/system directory. Important: Use this tool whenever the user asks to schedule, run regularly, or automate a recurring task.',
+      humanIntervention: {
+        dynamic: {
+          default: 'never',
+          policy: 'required',
+          type: 'pathScopeAudit',
+        },
+      },
+      name: LocalSystemApiName.createAutomation,
+      parameters: {
+        properties: {
+          id: { type: 'string', description: 'Unique automation ID (used as folder name, alphanumeric and hyphens only)' },
+          name: { type: 'string', description: 'Human readable name of the automation' },
+          prompt: { type: 'string', description: 'Prompt instructions for the automation task' },
+          rrule: { type: 'string', description: 'Cron/RRULE for execution schedule (e.g., FREQ=WEEKLY;BYDAY=SU for weekly)' },
+          status: { type: 'string', enum: ['ACTIVE', 'INACTIVE'], description: 'Default is ACTIVE' },
+        },
+        required: ['id', 'name', 'prompt', 'rrule'],
+        type: 'object',
+      },
+    },
   ],
   identifier: LocalSystemIdentifier,
   meta: {

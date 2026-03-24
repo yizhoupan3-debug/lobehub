@@ -12,6 +12,9 @@ import { MainToken, PortalToken } from './Token';
 import Tools from './Tools';
 import Typo from './Typo';
 import Upload from './Upload';
+import PlusMenu from './PlusMenu';
+
+import SubagentMode from './SubagentMode';
 
 export const actionMap = {
   agentMode: AgentMode,
@@ -23,6 +26,8 @@ export const actionMap = {
   mention: Mention,
   model: Model,
   params: Params,
+  plusMenu: PlusMenu,
+  subagentMode: SubagentMode,
   portalToken: PortalToken,
   saveTopic: SaveTopic,
   search: Search,

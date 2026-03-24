@@ -12,6 +12,7 @@ import  {
 export const LocalSystemIdentifier = 'lobe-local-system';
 
 export const LocalSystemApiName = {
+  createAutomation: 'createAutomation',
   editLocalFile: 'editLocalFile',
   getCommandOutput: 'getCommandOutput',
   globLocalFiles: 'globLocalFiles',

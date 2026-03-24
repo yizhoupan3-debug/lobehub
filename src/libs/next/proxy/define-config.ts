@@ -21,6 +21,7 @@ const logBetterAuth = debug('middleware:better-auth');
 
 // Dev-only debug proxy route should bypass all middleware rewrites.
 const dangerousLocalDevProxyRoute = '/_dangerous_local_dev_proxy';
+const isLocalNoAuth = process.env.LOCAL_NO_AUTH === '1';
 
 export function defineConfig() {
   const backendApiEndpoints = ['/api', '/trpc', '/webapi', '/oidc'];
@@ -201,6 +202,16 @@ export function defineConfig() {
     logBetterAuth('BetterAuth middleware processing request: %s %s', req.method, req.url);
 
     const response = defaultMiddleware(req);
+    const isAuthRoute = req.nextUrl.pathname === '/signin' || req.nextUrl.pathname === '/signup';
+
+    if (isLocalNoAuth) {
+      if (isAuthRoute) {
+        const callbackUrl = req.nextUrl.searchParams.get('callbackUrl') || '/';
+        return Response.redirect(new URL(callbackUrl, appEnv.APP_URL));
+      }
+
+      return response;
+    }
 
     // when enable auth protection, only public route is not protected, others are all protected
     const isProtected = !isPublicRoute(req);

@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import * as dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import { migrate as neonMigrate } from 'drizzle-orm/neon-serverless/migrator';
+import { sql } from 'drizzle-orm';
+import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { migrate as nodeMigrate } from 'drizzle-orm/node-postgres/migrator';
 
 // @ts-ignore tsgo handle esm import cjs and compatibility issues
@@ -20,12 +22,50 @@ dotenvExpand.expand(dotenv.config({ override: true, path: `.env.${env}.local` })
 
 const migrationsFolder = join(__dirname, '../../packages/database/migrations');
 
+/**
+ * Run compatible migrations for the PGlite driver.
+ * Skips pg_search and bm25 statements that are not supported by PGlite.
+ * @param db The initialized Drizzle database instance.
+ * @returns {Promise<void>}
+ */
+const pgliteMigrate = async (db: any): Promise<void> => {
+  const migrations = readMigrationFiles({ migrationsFolder });
+
+  await db.execute(sql`CREATE SCHEMA IF NOT EXISTS "drizzle"`);
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS "drizzle"."__drizzle_migrations" (
+      id SERIAL PRIMARY KEY,
+      hash text NOT NULL,
+      created_at bigint
+    )
+  `);
+
+  for (const migration of migrations) {
+    const skipSql = migration.sql.some(
+      (statement) =>
+        statement.toLowerCase().includes('pg_search') || statement.toLowerCase().includes('bm25'),
+    );
+
+    if (!skipSql) {
+      for (const statement of migration.sql) {
+        await db.execute(sql.raw(statement));
+      }
+    }
+
+    await db.execute(
+      sql`INSERT INTO "drizzle"."__drizzle_migrations" (hash, created_at) VALUES (${migration.hash}, ${migration.folderMillis})`,
+    );
+  }
+};
+
 const runMigrations = async () => {
   const { serverDB } = await import('../../packages/database/src/server');
 
   const time = Date.now();
   if (process.env.DATABASE_DRIVER === 'node') {
     await nodeMigrate(serverDB, { migrationsFolder });
+  } else if (process.env.DATABASE_DRIVER === 'pglite') {
+    await pgliteMigrate(serverDB);
   } else {
     await neonMigrate(serverDB, { migrationsFolder });
   }

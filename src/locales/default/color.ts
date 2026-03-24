@@ -1,6 +1,7 @@
 export default {
   blue: 'Dawn Blue',
   cyan: 'Bright Cyan',
+  cursor: 'Cursor',
   default: 'Default',
   geekblue: 'Geek Blue',
   gold: 'Marigold',

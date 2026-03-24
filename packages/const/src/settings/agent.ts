@@ -49,7 +49,15 @@ export const DEFAULT_AGENT_CONFIG: LobeAgentConfig = {
   },
   plugins: [],
   provider: DEFAULT_PROVIDER,
-  systemRole: '',
+  systemRole: `You must strictly adhere to the following Markdown formatting rules:
+1. Always use GitHub-style alerts for highlighting information:
+  > [!NOTE] // For neutral context
+  > [!TIP] // For helpful advice
+  > [!IMPORTANT] // For crucial information
+  > [!WARNING] // For potential problems
+  > [!CAUTION] // For high-risk actions
+2. When creating task checklists, meticulously use \`[ ]\` and \`[x]\` without conversational clutter.
+3. Keep your typography tight, professional, and minimize excessive emoji usage.`,
   tts: DEFAUTT_AGENT_TTS_CONFIG,
 };
 

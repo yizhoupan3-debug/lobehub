@@ -1,4 +1,4 @@
-import { HomeIcon, SearchIcon } from 'lucide-react';
+import { BotIcon, BoxIcon, LibraryBigIcon, SearchIcon, WrenchIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -47,23 +47,28 @@ export const useNavLayout = (): NavLayout => {
           title: t('tab.search'),
         },
         {
-          icon: HomeIcon,
-          key: SidebarTabKey.Home,
-          title: t('tab.home'),
-          url: '/',
+          icon: BotIcon,
+          key: 'automation',
+          title: t('tab.automation', '自动化'),
+          url: '/automation',
         },
         {
-          icon: getRouteById('page')!.icon,
-          key: SidebarTabKey.Pages,
-          title: t('tab.pages'),
-          url: '/page',
+          icon: BoxIcon,
+          key: 'mcp',
+          title: t('tab.mcp', 'MCP'),
+          url: '/settings/mcp',
         },
         {
-          hidden: !showMarket,
-          icon: getRouteById('community')!.icon,
-          key: SidebarTabKey.Community,
-          title: t('tab.marketplace'),
-          url: '/community',
+          icon: WrenchIcon,
+          key: 'skill',
+          title: t('tab.skill', 'Skill'),
+          url: '/settings/skill',
+        },
+        {
+          icon: LibraryBigIcon,
+          key: 'knowledgeBase',
+          title: t('tab.knowledge', '知识库'),
+          url: '/knowledge',
         },
       ] as NavItem[],
     [t, toggleCommandMenu, showMarket],

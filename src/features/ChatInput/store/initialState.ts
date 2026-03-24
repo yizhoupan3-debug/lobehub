@@ -9,6 +9,8 @@ export type SendButtonHandler = (params: {
   editor: IEditor;
   getEditorData: () => Record<string, any> | undefined;
   getMarkdownContent: () => string;
+  isPlanMode: boolean;
+  isSubagentMode: boolean;
 }) => Promise<void> | void;
 
 export interface SendButtonProps {
@@ -31,6 +33,8 @@ export interface PublicState {
   agentId?: string;
   allowExpand?: boolean;
   expand?: boolean;
+  isPlanMode?: boolean;
+  isSubagentMode?: boolean;
   leftActions: ActionKeys[];
   mentionItems?: SlashOptions['items'];
   mobile?: boolean;
@@ -56,6 +60,8 @@ export interface State extends PublicState {
 export const initialState: State = {
   allowExpand: true,
   expand: false,
+  isPlanMode: false,
+  isSubagentMode: false,
   isContentEmpty: false,
   leftActions: [],
   markdownContent: '',

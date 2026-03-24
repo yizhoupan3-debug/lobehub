@@ -38,10 +38,8 @@ const ChatList = memo<ChatListProps>(({ disableActionsBar, welcome, itemContent 
   // Fetch messages (SWR key is null when skipFetch is true)
   const context = useConversationStore((s) => s.context);
   const enableUserMemories = useUserStore(settingsSelectors.memoryEnabled);
-  const [skipFetch, useFetchMessages] = useConversationStore((s) => [
-    dataSelectors.skipFetch(s),
-    s.useFetchMessages,
-  ]);
+  const skipFetch = useConversationStore(dataSelectors.skipFetch);
+  const useFetchMessages = useConversationStore((s) => s.useFetchMessages);
   useFetchMessages(context, skipFetch);
 
   // Skip fetching notebook and memories for share pages (they require authentication)

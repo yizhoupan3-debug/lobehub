@@ -38,10 +38,10 @@ import { klavisRouter } from './klavis';
 import { knowledgeRouter } from './knowledge';
 import { knowledgeBaseRouter } from './knowledgeBase';
 import { marketRouter } from './market';
-import { messageRouter } from './message';
 import { notebookRouter } from './notebook';
 import { oauthDeviceFlowRouter } from './oauthDeviceFlow';
 import { pluginRouter } from './plugin';
+import { antigravityKnowledgeRouter } from './antigravityKnowledge';
 import { ragEvalRouter } from './ragEval';
 import { searchRouter } from './search';
 import { sessionRouter } from './session';
@@ -84,9 +84,9 @@ export const lambdaRouter = router({
   home: homeRouter,
   image: imageRouter,
   importer: importerRouter,
-  klavis: klavisRouter,
   knowledge: knowledgeRouter,
   knowledgeBase: knowledgeBaseRouter,
+  antigravityKnowledge: antigravityKnowledgeRouter,
   market: marketRouter,
   message: messageRouter,
   notebook: notebookRouter,

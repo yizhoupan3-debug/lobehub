@@ -41,11 +41,11 @@ const stateToFileName: Record<FaviconState, string> = {
   progress: '-progress',
 };
 
-const getFaviconPath = (state: FaviconState, isDev: boolean, size?: '32x32'): string => {
-  const devSuffix = isDev ? '-dev' : '';
+const getFaviconPath = (state: FaviconState, _isDev: boolean, size?: '32x32'): string => {
+  // Always use production icon paths (no -dev suffix) for consistent appearance
   const stateSuffix = stateToFileName[state];
   const sizeSuffix = size ? `-${size}` : '';
-  return `/favicon${sizeSuffix}${stateSuffix}${devSuffix}.ico`;
+  return `/favicon${sizeSuffix}${stateSuffix}.ico`;
 };
 
 const updateFaviconDOM = (state: FaviconState, isDev: boolean) => {

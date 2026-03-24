@@ -81,6 +81,8 @@ export interface GeneralAgentConfig {
     enabled?: boolean;
     /** Model's max context window token count (default: 128k) */
     maxWindowToken?: number;
+    /** Number of recent tokens to preserve (default: 20k) */
+    preserveTokens?: number;
   };
   /**
    * Dynamic intervention audits registry (per-tool)

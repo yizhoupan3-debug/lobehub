@@ -426,6 +426,21 @@ export const desktopRoutes: RouteObject[] = [
         path: 'page',
       },
 
+      // Automation routes
+      {
+        children: [
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/automation'),
+              'Desktop > Automation'
+            ),
+            index: true,
+          },
+        ],
+        errorElement: <ErrorBoundary resetPath="/automation" />,
+        path: 'automation',
+      },
+
       // Default route - home page (handled by persistent layout)
       {
         index: true,

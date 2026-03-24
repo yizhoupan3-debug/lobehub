@@ -14,6 +14,7 @@ import {
   type SendButtonHandler,
   type SendButtonProps,
 } from '@/features/ChatInput/store/initialState';
+import { useChatInputStore } from '@/features/ChatInput/store';
 import { useChatStore } from '@/store/chat';
 import { fileChatSelectors, useFileStore } from '@/store/file';
 
@@ -113,6 +114,11 @@ const ChatInput = memo<ChatInputProps>(
     // Loading state from ConversationStore (bridged from ChatStore)
     const isInputLoading = useConversationStore(messageStateSelectors.isInputLoading);
 
+    // Concurrency mode detection
+    const isPlanMode = useChatInputStore((s) => s.isPlanMode);
+    const isSubagentMode = useChatInputStore((s) => s.isSubagentMode);
+    const isConcurrentMode = isPlanMode || isSubagentMode;
+
     // Send message error from ConversationStore
     const sendMessageErrorMsg = useConversationStore(messageStateSelectors.sendMessageError);
     const clearSendMessageError = useChatStore((s) => s.clearSendMessageError);
@@ -124,23 +130,29 @@ const ChatInput = memo<ChatInputProps>(
 
     // Computed state
     const isInputEmpty = !inputMessage.trim() && fileList.length === 0 && contextList.length === 0;
-    const disabled = isInputEmpty || isUploadingFiles || isInputLoading;
+    const disabled = isInputEmpty || isUploadingFiles || (!isConcurrentMode && isInputLoading);
 
     // Send handler - gets message, clears editor immediately, then sends
     const handleSend: SendButtonHandler = useCallback(
-      async ({ clearContent, getMarkdownContent, getEditorData }) => {
+      async ({ clearContent, getMarkdownContent, getEditorData, isPlanMode, isSubagentMode }) => {
         // Get instant values from stores at trigger time
         const fileStore = useFileStore.getState();
         const currentFileList = fileChatSelectors.chatUploadFileList(fileStore);
         const currentIsUploading = fileChatSelectors.isUploadingFiles(fileStore);
         const currentContextList = fileChatSelectors.chatContextSelections(fileStore);
 
-        if (currentIsUploading || isInputLoading) return;
+        if (currentIsUploading || (!isConcurrentMode && isInputLoading)) return;
 
         // Get content before clearing
-        const message = getMarkdownContent();
+        let message = getMarkdownContent();
         if (!message.trim() && currentFileList.length === 0 && currentContextList.length === 0)
           return;
+
+        if (isPlanMode) {
+          message = `[PLAN_MODE]\n请为以下需求提供详细的 implementation_plan.md 设计。\n要求：包含 Goal Description、Proposed Changes（明确文件和具体的修改）、Verification Plan。\n\n需求详情：\n${message}`;
+        } else if (isSubagentMode) {
+          message = `[SUBAGENT_MODE]\n请为以下需求启动 Codex 并发子代理派发 (subagent-delegation)。\n要求：使用侧边车架构 (sidecar)，主线程只保留结论摘要，并将详细执行与收集结果分发至各个子节点或文件中。\n\n需求详情：\n${message}`;
+        }
 
         // Capture editor JSON state before clearing for rich text rendering
         const editorData = getEditorData();
@@ -166,7 +178,7 @@ const ChatInput = memo<ChatInputProps>(
 
     const sendButtonProps: SendButtonProps = {
       disabled,
-      generating: isInputLoading,
+      generating: isConcurrentMode ? false : isInputLoading,
       onStop: stopGenerating,
       ...customSendButtonProps,
     };

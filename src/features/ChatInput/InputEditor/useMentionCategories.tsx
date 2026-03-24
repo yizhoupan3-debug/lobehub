@@ -1,6 +1,7 @@
 import { Avatar, Icon } from '@lobehub/ui';
-import { Bot, MessageSquareText, Users } from 'lucide-react';
+import { Bot, MessageSquareText, Users, FileText, ListTodo, BookOpen, MessageSquare } from 'lucide-react';
 import { useMemo } from 'react';
+import useSWR from 'swr';
 
 import { useChatStore } from '@/store/chat';
 import { topicSelectors } from '@/store/chat/selectors';
@@ -31,6 +32,12 @@ export const useMentionCategories = (): MentionCategory[] => {
 
   const externalMentionItems = useChatInputStore((s) => s.mentionItems);
   const isGroupChat = !!externalMentionItems;
+
+  const { data: codexCategories } = useSWR('/api/codex/mentions', async (url) => {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    return res.json();
+  });
 
   return useMemo(() => {
     const categories: MentionCategory[] = [];
@@ -117,6 +124,26 @@ export const useMentionCategories = (): MentionCategory[] => {
       }
     }
 
+    if (codexCategories && Array.isArray(codexCategories)) {
+      codexCategories.forEach((cat) => {
+        let iconNode = <Icon icon={FileText} size={16} />;
+        if (cat.id === 'task') iconNode = <Icon icon={ListTodo} size={16} />;
+        if (cat.id === 'implementation_plan') iconNode = <Icon icon={FileText} size={16} />;
+        if (cat.id === 'walkthrough') iconNode = <Icon icon={BookOpen} size={16} />;
+        if (cat.id === 'conversation') iconNode = <Icon icon={MessageSquare} size={16} />;
+
+        categories.push({
+          id: cat.id,
+          icon: iconNode,
+          label: cat.label,
+          items: (cat.items || []).map((item: any) => ({
+            ...item,
+            icon: iconNode,
+          })),
+        });
+      });
+    }
+
     return categories;
-  }, [allAgents, currentAgentId, topics, activeTopicId, isGroupChat, externalMentionItems]);
+  }, [allAgents, currentAgentId, topics, activeTopicId, isGroupChat, externalMentionItems, codexCategories]);
 };

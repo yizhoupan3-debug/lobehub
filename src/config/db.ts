@@ -13,7 +13,7 @@ export const getServerDBConfig = () => {
       REMOVE_GLOBAL_FILE: process.env.DISABLE_REMOVE_GLOBAL_FILE !== '0',
     },
     server: {
-      DATABASE_DRIVER: z.enum(['neon', 'node']),
+      DATABASE_DRIVER: z.enum(['neon', 'node', 'pglite']),
       DATABASE_TEST_URL: z.string().optional(),
       DATABASE_URL: z.string().optional(),
 

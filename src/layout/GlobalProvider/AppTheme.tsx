@@ -97,8 +97,8 @@ const AppTheme = memo<AppThemeProps>(
     defaultPrimaryColor,
     defaultNeutralColor,
     globalCDN,
-    customFontURL,
-    customFontFamily,
+    customFontURL = 'https://cdn.jsdelivr.net/npm/geist@1.0.3/dist/fonts/geist-sans/style.css',
+    customFontFamily = '"Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   }) => {
     const language = useGlobalStore(systemStatusSelectors.language);
     const antdTheme = useTheme();

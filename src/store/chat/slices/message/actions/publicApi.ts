@@ -210,6 +210,123 @@ export class MessagePublicApiActionImpl {
     this.#get().replaceMessages([]);
   };
 
+  /**
+   * Garbage collection: clear internal maps that don't belong to the active session
+   * This prevents memory leaks across multiple session switches
+   */
+  clearRawClientContexts = (): void => {
+    const { activeAgentId, activeGroupId, activeTopicId, operations } = this.#get();
+    
+    // Create keep prefixes
+    const keepPrefixes: Set<string> = new Set();
+    
+    // Always keep active group
+    if (activeGroupId) {
+      keepPrefixes.add(`group_${activeGroupId}`);
+      
+      if (activeAgentId) {
+        keepPrefixes.add(`group_agent_${activeGroupId}`);
+      }
+    }
+    
+    // Keep active agent and topics
+    if (activeAgentId) {
+      keepPrefixes.add(`agent_${activeAgentId}`); // for topicDataMap
+      
+      if (activeTopicId) {
+        keepPrefixes.add(`main_${activeAgentId}_${activeTopicId}`);
+        keepPrefixes.add(`thread_${activeAgentId}_${activeTopicId}`);
+      } else {
+        keepPrefixes.add(`main_${activeAgentId}_new`);
+        keepPrefixes.add(`thread_${activeAgentId}_new`);
+      }
+    }
+
+    // Identify contexts that have actively running operations and keep them
+    // to prevent breaking background generations
+    Object.values(operations).forEach((op) => {
+      if (op.status === 'running' || op.status === 'pending') {
+        const { agentId, topicId, groupId } = op.context;
+        if (groupId) {
+          keepPrefixes.add(`group_${groupId}`);
+          if (agentId) keepPrefixes.add(`group_agent_${groupId}`);
+        }
+        if (agentId) {
+          keepPrefixes.add(`agent_${agentId}`);
+          if (topicId) {
+            keepPrefixes.add(`main_${agentId}_${topicId}`);
+            keepPrefixes.add(`thread_${agentId}_${topicId}`);
+          } else {
+            keepPrefixes.add(`main_${agentId}_new`);
+            keepPrefixes.add(`thread_${agentId}_new`);
+          }
+        }
+      }
+    });
+
+    if (keepPrefixes.size === 0) return;
+    const prefixesArray = Array.from(keepPrefixes);
+
+    this.#set((state) => {
+      const filterMapKeys = <T extends Record<string, any>>(map: T): T => {
+        const newMap = {} as T;
+        for (const [key, value] of Object.entries(map)) {
+          if (prefixesArray.some((p) => key.startsWith(p))) {
+            (newMap as any)[key] = value;
+          }
+        }
+        return newMap;
+      };
+
+      // Filter maps that use context prefixes (agentId, groupId, topicId)
+      const newDbMessagesMap = filterMapKeys(state.dbMessagesMap);
+      const newMessagesMap = filterMapKeys(state.messagesMap);
+      const newTopicDataMap = filterMapKeys(state.topicDataMap);
+      const newGroupAgentMaps = filterMapKeys(state.groupAgentMaps);
+      const newThreadMaps = filterMapKeys(state.threadMaps);
+
+      // Collect all active message IDs to filter messageOperationMap
+      const activeMessageIds = new Set<string>();
+      Object.values(newDbMessagesMap).forEach((msgs: any[]) => {
+        if (Array.isArray(msgs)) msgs.forEach(m => activeMessageIds.add(m.id));
+      });
+      Object.values(newMessagesMap).forEach((msgs: any[]) => {
+        if (Array.isArray(msgs)) msgs.forEach(m => activeMessageIds.add(m.id));
+      });
+
+      const newMessageOperationMap = {} as Record<string, string>;
+      for (const [msgId, opId] of Object.entries(state.messageOperationMap)) {
+        if (activeMessageIds.has(msgId)) {
+          newMessageOperationMap[msgId] = opId;
+        }
+      }
+
+      // Filter toolCallingStreamIds based on active message IDs
+      const newToolCallingStreamIds = {} as Record<string, boolean[]>;
+      for (const [msgId, streamIds] of Object.entries(state.toolCallingStreamIds)) {
+        if (activeMessageIds.has(msgId)) {
+          newToolCallingStreamIds[msgId] = streamIds;
+        }
+      }
+
+      // Filter messageEditingIds
+      const newMessageEditingIds = (state.messageEditingIds || []).filter((id) =>
+        activeMessageIds.has(id)
+      );
+
+      return {
+        dbMessagesMap: newDbMessagesMap,
+        groupAgentMaps: newGroupAgentMaps,
+        messageEditingIds: newMessageEditingIds,
+        messageOperationMap: newMessageOperationMap,
+        messagesMap: newMessagesMap,
+        threadMaps: newThreadMaps,
+        toolCallingStreamIds: newToolCallingStreamIds,
+        topicDataMap: newTopicDataMap,
+      };
+    }, false, n('clearRawClientContexts'));
+  };
+
   copyMessage = async (id: string, content: string): Promise<void> => {
     await copyToClipboard(content);
 
@@ -282,5 +399,5 @@ export class MessagePublicApiActionImpl {
 
 export type MessagePublicApiAction = Pick<
   MessagePublicApiActionImpl,
-  keyof MessagePublicApiActionImpl
+  keyof MessagePublicApiActionImpl | 'clearRawClientContexts'
 >;

@@ -120,6 +120,25 @@ export class GlobalWorkspacePaneActionImpl {
 
     this.#get().updateSystemStatus({ zenMode: nextZenMode }, n('toggleZenMode'));
   };
+
+  toggleWorkspaceTree = (visible?: boolean): void => {
+    const currentMode = this.#get().status.workspaceRightPanelMode;
+    const nextMode = visible === undefined ? (currentMode === 'tree' ? false : 'tree') : (visible ? 'tree' : false);
+    this.#get().updateSystemStatus({ workspaceRightPanelMode: nextMode }, n('toggleWorkspaceTree', nextMode));
+  };
+
+  openWorkspacePreview = (file: { url: string; type: string; title: string; fileId?: string }): void => {
+    this.#get().updateSystemStatus({ 
+      workspaceRightPanelMode: 'preview',
+      workspacePreviewFile: file
+    }, n('openWorkspacePreview', file));
+  };
+
+  closeWorkspaceRightPanel = (): void => {
+    this.#get().updateSystemStatus({ 
+      workspaceRightPanelMode: false 
+    }, n('closeWorkspaceRightPanel'));
+  };
 }
 
 export type GlobalWorkspacePaneAction = Pick<

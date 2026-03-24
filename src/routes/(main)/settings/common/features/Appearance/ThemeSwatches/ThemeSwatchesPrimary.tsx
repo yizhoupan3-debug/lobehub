@@ -12,6 +12,20 @@ const ThemeSwatchesPrimary = memo<IProps>(({ onChange, value }) => {
   const { t } = useTranslation('color');
 
   const handleSelect = (v: any) => {
+    const customPrimaries = [
+      '#007acc', '#0070f3', '#88c0d0', '#bd93f9', '#f92672',
+      '#58a6ff', '#268bd2', '#d79921', '#61afef', '#7aa2f7'
+    ];
+    const customNames = [
+      'cursor', 'vercel', 'nord', 'dracula', 'monokai',
+      'github', 'solarized', 'gruvbox', 'onedark', 'tokyonight'
+    ];
+    const index = customPrimaries.indexOf(v);
+    
+    if (index !== -1) {
+      onChange?.(customNames[index] as any);
+      return;
+    }
     const name = findCustomThemeName('primary', v) as PrimaryColors;
     onChange?.(name || '');
   };
@@ -24,6 +38,16 @@ const ThemeSwatchesPrimary = memo<IProps>(({ onChange, value }) => {
           color: 'rgba(0, 0, 0, 0)',
           title: t('default'),
         },
+        { color: '#007acc', title: t('cursor') },
+        { color: '#0070f3', title: t('vercel') },
+        { color: '#88c0d0', title: t('nord') },
+        { color: '#bd93f9', title: t('dracula') },
+        { color: '#f92672', title: t('monokai') },
+        { color: '#58a6ff', title: t('github') },
+        { color: '#268bd2', title: t('solarized') },
+        { color: '#d79921', title: t('gruvbox') },
+        { color: '#61afef', title: t('onedark') },
+        { color: '#7aa2f7', title: t('tokyonight') },
         {
           color: primaryColors.red,
           title: t('red'),

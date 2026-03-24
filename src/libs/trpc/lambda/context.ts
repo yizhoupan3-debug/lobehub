@@ -11,6 +11,7 @@ import { validateOIDCJWT } from '@/libs/oidc-provider/jwt';
 
 // Create context logger namespace
 const log = debug('lobe-trpc:lambda:context');
+const LOCAL_NO_AUTH_USER_ID = process.env.MOCK_DEV_USER_ID || 'local-dev-user';
 
 const extractClientIp = (request: NextRequest): string | undefined => {
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -86,11 +87,12 @@ export const createLambdaContext = async (request: NextRequest): Promise<LambdaC
   // IT WON'T GO INTO PRODUCTION ANYMORE
   const isDebugApi = request.headers.get('lobe-auth-dev-backend-api') === '1';
   const isMockUser = process.env.ENABLE_MOCK_DEV_USER === '1';
+  const isLocalNoAuth = process.env.LOCAL_NO_AUTH === '1';
 
-  if (process.env.NODE_ENV === 'development' && (isDebugApi || isMockUser)) {
+  if ((process.env.NODE_ENV === 'development' && (isDebugApi || isMockUser)) || isLocalNoAuth) {
     return createContextInner({
       authorizationHeader: request.headers.get(LOBE_CHAT_AUTH_HEADER),
-      userId: process.env.MOCK_DEV_USER_ID,
+      userId: LOCAL_NO_AUTH_USER_ID,
     });
   }
 

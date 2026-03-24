@@ -1,6 +1,9 @@
+import { PGlite } from '@electric-sql/pglite';
+import { vector } from '@electric-sql/pglite/vector';
 import { neonConfig, Pool as NeonPool } from '@neondatabase/serverless';
 import { drizzle as neonDrizzle } from 'drizzle-orm/neon-serverless';
 import { drizzle as nodeDrizzle } from 'drizzle-orm/node-postgres';
+import { drizzle as pgliteDrizzle } from 'drizzle-orm/pglite';
 import { Pool as NodePool } from 'pg';
 import ws from 'ws';
 
@@ -26,6 +29,11 @@ If you don't have it, please run \`openssl rand -base64 32\` to create one.
 
   if (!connectionString) {
     throw new Error(`You are try to use database, but "DATABASE_URL" is not set correctly`);
+  }
+
+  if (serverDBEnv.DATABASE_DRIVER === 'pglite') {
+    const client = new PGlite(connectionString, { extensions: { vector } });
+    return pgliteDrizzle({ client, schema }) as unknown as LobeChatDatabase;
   }
 
   if (serverDBEnv.DATABASE_DRIVER === 'node') {

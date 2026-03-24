@@ -108,3 +108,69 @@ export function shouldCompress(
     threshold,
   };
 }
+
+/** Default preserved tokens for Middle-Out compression (20k tokens) */
+export const DEFAULT_PRESERVED_TOKENS = 20_000;
+
+/**
+ * Result of splitting messages for Middle-Out context compression
+ */
+export interface MiddleOutSplitResult {
+  /** Messages to compress (older history) */
+  messagesToCompress: TokenCountMessage[];
+  /** Preserved messages (recent tokens, guaranteed to have the last message) */
+  preservedMessages: TokenCountMessage[];
+}
+
+/**
+ * Splits messages into older messages (to compress) and recent messages (to preserve)
+ * based on the preserveTokens threshold. Iterates backward so recent messages are kept.
+ * Always ensures the last message is preserved.
+ *
+ * @param messages - All messages to split
+ * @param preserveTokens - Maximum tokens to preserve uncompressed (default: 20000)
+ * @returns Object containing messagesToCompress and preservedMessages
+ */
+export function splitMessagesForMiddleOut(
+  messages: TokenCountMessage[],
+  preserveTokens: number = DEFAULT_PRESERVED_TOKENS,
+): MiddleOutSplitResult {
+  if (messages.length <= 1) {
+    return { messagesToCompress: [], preservedMessages: messages };
+  }
+
+  const getMsgTokens = (msg: TokenCountMessage) => {
+    if (msg.role === 'assistant') {
+      const outputTokens = msg.metadata?.usage?.totalOutputTokens;
+      if (outputTokens && outputTokens > 0) return outputTokens;
+    }
+    return estimateTokens(msg.content);
+  };
+
+  const preservedMessages: TokenCountMessage[] = [];
+  let accumulatedTokens = 0;
+
+  // Always preserve the very last message
+  const lastMessage = messages[messages.length - 1];
+  preservedMessages.unshift(lastMessage);
+  accumulatedTokens += getMsgTokens(lastMessage);
+
+  let splitIndex = messages.length - 1;
+
+  for (let i = messages.length - 2; i >= 0; i--) {
+    const msg = messages[i];
+    const msgTokens = getMsgTokens(msg);
+
+    if (accumulatedTokens + msgTokens <= preserveTokens) {
+      accumulatedTokens += msgTokens;
+      preservedMessages.unshift(msg);
+      splitIndex = i;
+    } else {
+      break;
+    }
+  }
+
+  const messagesToCompress = messages.slice(0, splitIndex);
+
+  return { messagesToCompress, preservedMessages };
+}

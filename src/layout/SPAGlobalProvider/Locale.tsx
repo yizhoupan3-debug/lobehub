@@ -43,6 +43,7 @@ const Locale = memo<LocaleLayoutProps>(({ children, defaultLang, antdLocale }) =
   const [i18n] = useState(() => createI18nNext(defaultLang));
   const [lang, setLang] = useState(defaultLang);
   const [locale, setLocale] = useState(antdLocale);
+  const isLocalNoAuth = process.env.NEXT_PUBLIC_LOCAL_NO_AUTH === '1';
 
   // Set dayjs locale immediately on mount (don't wait for i18n init) to avoid
   // "a few seconds ago" showing in English when UI is already in Chinese
@@ -84,7 +85,7 @@ const Locale = memo<LocaleLayoutProps>(({ children, defaultLang, antdLocale }) =
         },
       }}
     >
-      <Editor>{children}</Editor>
+      {isLocalNoAuth ? children : <Editor>{children}</Editor>}
     </ConfigProvider>
   );
 });

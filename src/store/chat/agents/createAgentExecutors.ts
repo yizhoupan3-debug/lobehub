@@ -35,6 +35,7 @@ import debug from 'debug';
 import pMap from 'p-map';
 
 import { LOADING_FLAT } from '@/const/message';
+import { appEnv } from '@/envs/app';
 import { aiAgentService } from '@/services/aiAgent';
 import { chatService } from '@/services/chat';
 import { type ResolvedAgentConfig } from '@/services/chat/mecha';
@@ -1874,7 +1875,7 @@ export const createAgentExecutors = (context: {
             };
           }
         },
-        { concurrency: 15 }, // Limit concurrent tasks
+        { concurrency: appEnv.NEXT_PUBLIC_SUBAGENT_CONCURRENCY }, // Limit concurrent tasks
       );
 
       log('[%s][exec_tasks] All tasks completed, results: %O', sessionLogId, results);
@@ -2511,7 +2512,7 @@ export const createAgentExecutors = (context: {
             };
           }
         },
-        { concurrency: 15 },
+        { concurrency: appEnv.NEXT_PUBLIC_SUBAGENT_CONCURRENCY },
       );
 
       log('[%s][exec_client_tasks] All tasks completed, results: %O', sessionLogId, results);

@@ -11,7 +11,11 @@ export interface Action {
   setDocument: (type: string, content: any, options?: Record<string, unknown>) => void;
   setExpand: (expend: boolean) => void;
   setJSONState: (content: any) => void;
+  setPlanMode: (isPlanMode: boolean) => void;
+  setSubagentMode: (isSubagentMode: boolean) => void;
   setShowTypoBar: (show: boolean) => void;
+  togglePlanMode: () => void;
+  toggleSubagentMode: () => void;
   updateMarkdownContent: () => void;
 }
 
@@ -40,6 +44,8 @@ export const store: CreateStore = (publicState) => (set, get) => ({
       editor: editor!,
       getEditorData: get().getJSONState,
       getMarkdownContent: get().getMarkdownContent,
+      isPlanMode: get().isPlanMode || false,
+      isSubagentMode: get().isSubagentMode || false,
     });
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -66,8 +72,24 @@ export const store: CreateStore = (publicState) => (set, get) => ({
     get().editor?.setDocument('json', content);
   },
 
+  setPlanMode: (isPlanMode) => {
+    set({ isPlanMode });
+  },
+
+  setSubagentMode: (isSubagentMode) => {
+    set({ isSubagentMode });
+  },
+
   setShowTypoBar: (showTypoBar) => {
     set({ showTypoBar });
+  },
+
+  togglePlanMode: () => {
+    set({ isPlanMode: !get().isPlanMode });
+  },
+
+  toggleSubagentMode: () => {
+    set({ isSubagentMode: !get().isSubagentMode });
   },
 
   updateMarkdownContent: () => {
