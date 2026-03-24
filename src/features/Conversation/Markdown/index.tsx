@@ -18,8 +18,8 @@ const useStyles = createStyles(({ css, token, isDarkMode }) => ({
 
       list-style-type: none;
     }
-    
-    li.task-list-item input[type="checkbox"] {
+
+    li.task-list-item input[type='checkbox'] {
       cursor: pointer;
 
       display: grid;
@@ -37,8 +37,8 @@ const useStyles = createStyles(({ css, token, isDarkMode }) => ({
       transition: all 0.2s ease;
     }
 
-    li.task-list-item input[type="checkbox"]::before {
-      content: "";
+    li.task-list-item input[type='checkbox']::before {
+      content: '';
 
       transform-origin: center;
       transform: scale(0);
@@ -53,12 +53,12 @@ const useStyles = createStyles(({ css, token, isDarkMode }) => ({
       transition: 120ms transform ease-in-out;
     }
 
-    li.task-list-item input[type="checkbox"]:checked {
+    li.task-list-item input[type='checkbox']:checked {
       border-color: ${token.colorPrimary};
       background-color: ${token.colorPrimary};
     }
 
-    li.task-list-item input[type="checkbox"]:checked::before {
+    li.task-list-item input[type='checkbox']:checked::before {
       transform: scale(1);
     }
 
@@ -92,61 +92,72 @@ const useStyles = createStyles(({ css, token, isDarkMode }) => ({
       border-inline-start-color: #0969da;
       background-color: ${isDarkMode ? 'rgba(9,105,218,0.1)' : 'rgba(9,105,218,0.05)'};
     }
-    .markdown-alert-note > p:first-child { color: #0969da; }
-    
+    .markdown-alert-note > p:first-child {
+      color: #0969da;
+    }
+
     .markdown-alert-tip {
       border-inline-start-color: #1a7f37;
       background-color: ${isDarkMode ? 'rgba(26,127,55,0.1)' : 'rgba(26,127,55,0.05)'};
     }
-    .markdown-alert-tip > p:first-child { color: #1a7f37; }
+    .markdown-alert-tip > p:first-child {
+      color: #1a7f37;
+    }
 
     .markdown-alert-important {
       border-inline-start-color: #8250df;
       background-color: ${isDarkMode ? 'rgba(130,80,223,0.1)' : 'rgba(130,80,223,0.05)'};
     }
-    .markdown-alert-important > p:first-child { color: #8250df; }
+    .markdown-alert-important > p:first-child {
+      color: #8250df;
+    }
 
     .markdown-alert-warning {
       border-inline-start-color: #9a6700;
       background-color: ${isDarkMode ? 'rgba(154,103,0,0.1)' : 'rgba(154,103,0,0.05)'};
     }
-    .markdown-alert-warning > p:first-child { color: #9a6700; }
+    .markdown-alert-warning > p:first-child {
+      color: #9a6700;
+    }
 
     .markdown-alert-caution {
       border-inline-start-color: #d1242f;
       background-color: ${isDarkMode ? 'rgba(209,36,47,0.1)' : 'rgba(209,36,47,0.05)'};
     }
-    .markdown-alert-caution > p:first-child { color: #d1242f; }
+    .markdown-alert-caution > p:first-child {
+      color: #d1242f;
+    }
   `,
 }));
 
-const MarkdownMessage = memo<MarkdownProps>(({ children, componentProps, className, style, ...rest }) => {
-  const { highlighterTheme, mermaidTheme, fontSize } = useUserStore(
-    userGeneralSettingsSelectors.config,
-  );
-  const { styles } = useStyles();
+const MarkdownMessage = memo<MarkdownProps>(
+  ({ children, componentProps, className, style, ...rest }) => {
+    const { highlighterTheme, mermaidTheme, fontSize } = useUserStore(
+      userGeneralSettingsSelectors.config,
+    );
+    const { styles } = useStyles();
 
-  return (
-    <div className={styles.antigravityMarkdown} style={style}>
-      <Markdown
-      className={className}
-      fontSize={fontSize}
-      variant={'chat'}
-      componentProps={{
-        ...componentProps,
-        highlight: {
-          fullFeatured: true,
-          theme: highlighterTheme,
-          ...componentProps?.highlight,
-        },
-        mermaid: { fullFeatured: false, theme: mermaidTheme, ...componentProps?.mermaid },
-      }}
-      {...rest}
-    >
-      {children}
-    </Markdown>
-    </div>
-  );
-});
+    return (
+      <div className={styles.antigravityMarkdown} style={style}>
+        <Markdown
+          className={className}
+          fontSize={fontSize}
+          componentProps={{
+            ...componentProps,
+            highlight: {
+              fullFeatured: true,
+              theme: highlighterTheme,
+              ...componentProps?.highlight,
+            },
+            mermaid: { fullFeatured: false, theme: mermaidTheme, ...componentProps?.mermaid },
+          }}
+          {...rest}
+        >
+          {children}
+        </Markdown>
+      </div>
+    );
+  },
+);
 
 export default MarkdownMessage;

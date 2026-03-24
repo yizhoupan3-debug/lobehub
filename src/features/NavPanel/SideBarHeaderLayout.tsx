@@ -3,7 +3,7 @@
 import { Flexbox, Icon, Text } from '@lobehub/ui';
 import { type BreadcrumbProps } from 'antd';
 import { Breadcrumb } from 'antd';
-import { createStaticStyles } from 'antd-style';
+import { createStyles } from 'antd-style';
 import { ChevronRightIcon, HomeIcon } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { memo } from 'react';
@@ -18,7 +18,7 @@ import ToggleLeftPanelButton from './ToggleLeftPanelButton';
 
 const prefixCls = 'ant';
 
-const styles = createStaticStyles(({ css, cssVar }) => ({
+const useStyles = createStyles(({ css, cssVar, token }) => ({
   breadcrumb: css`
     ol {
       align-items: center;
@@ -40,7 +40,14 @@ const styles = createStaticStyles(({ css, cssVar }) => ({
   `,
   container: css`
     overflow: hidden;
+
     margin-block-start: ${isDesktop ? '' : '8px'};
+    border-block-end: 1px solid ${token.colorBorderSecondary};
+
+    background: rgba(var(--lobe-background-rgb), 0.4);
+    backdrop-filter: blur(12px) saturate(180%);
+
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   `,
 }));
 
@@ -63,6 +70,7 @@ const SideBarHeaderLayout = memo<SideBarHeaderLayoutProps>(
     showTogglePanelButton = true,
   }) => {
     const navigate = useNavigate();
+    const { styles } = useStyles();
     const leftContent = left ? (
       <Flexbox
         horizontal

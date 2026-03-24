@@ -1,7 +1,6 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-
 import { NextResponse } from 'next/server';
+
+import { codexService } from '@/server/services/codex';
 
 export const GET = async (req: Request) => {
   try {
@@ -13,28 +12,17 @@ export const GET = async (req: Request) => {
     }
 
     try {
-      const stats = await fs.stat(targetPath);
-      if (!stats.isFile()) {
-        return NextResponse.json({ error: 'Target is not a file' }, { status: 400 });
-      }
-
-      const ext = path.extname(targetPath).toLowerCase();
-      let contentType = 'text/plain; charset=utf-8';
-      if (ext === '.pdf') contentType = 'application/pdf';
-      else if (ext === '.json') contentType = 'application/json';
-      else if (ext === '.md') contentType = 'text/markdown; charset=utf-8';
-
-      const fileBuffer = await fs.readFile(targetPath);
-      return new NextResponse(fileBuffer, {
+      const file = await codexService.getFile(targetPath);
+      return new NextResponse(file.buffer, {
         headers: {
-          'Content-Type': contentType,
+          'Content-Type': file.contentType,
         },
       });
     } catch (e: any) {
       if (e.code === 'ENOENT') {
         return NextResponse.json({ error: 'File not found' }, { status: 404 });
       }
-      throw e;
+      return NextResponse.json({ error: e.message || 'Internal server error' }, { status: 400 });
     }
   } catch (error: any) {
     console.error('File API Error:', error);

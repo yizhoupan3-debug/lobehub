@@ -69,7 +69,6 @@ const Thinking = memo<ThinkingProps>((props) => {
             <MarkdownMessage
               animated={thinkingAnimated}
               citations={citations}
-              variant={'chat'}
               style={{
                 overflow: 'unset',
               }}

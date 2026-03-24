@@ -1,0 +1,12 @@
+[
+  {
+    "action": "Run Next.js build or bundle analyzer to identify performance bottlenecks",
+    "owner": "execution-controller-app",
+    "status": "pending"
+  },
+  {
+    "action": "Audit main UI components for aesthetic upgrades (glassmorphism, better motion, Next.js Server Components)",
+    "owner": "execution-controller-app",
+    "status": "pending"
+  }
+]
