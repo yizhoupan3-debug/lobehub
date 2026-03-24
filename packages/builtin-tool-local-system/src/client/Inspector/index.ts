@@ -1,4 +1,5 @@
 import { LocalSystemApiName } from '../..';
+import { CreateAutomationInspector } from './CreateAutomation';
 import { EditLocalFileInspector } from './EditLocalFile';
 import { GlobLocalFilesInspector } from './GlobLocalFiles';
 import { GrepContentInspector } from './GrepContent';
@@ -13,6 +14,7 @@ import { WriteLocalFileInspector } from './WriteLocalFile';
  * Local System Inspector Components Registry
  */
 export const LocalSystemInspectors = {
+  [LocalSystemApiName.createAutomation]: CreateAutomationInspector,
   [LocalSystemApiName.editLocalFile]: EditLocalFileInspector,
   [LocalSystemApiName.globLocalFiles]: GlobLocalFilesInspector,
   [LocalSystemApiName.grepContent]: GrepContentInspector,

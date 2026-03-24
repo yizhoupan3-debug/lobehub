@@ -1,0 +1,5 @@
+
+> @lobehub/lobehub@2.1.43 type-check /Users/joe/Documents/指示词宝库/lobe-chat
+> tsgo --noEmit
+
+ ELIFECYCLE  Command failed.

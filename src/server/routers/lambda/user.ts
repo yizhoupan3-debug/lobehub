@@ -24,7 +24,6 @@ import { authedProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { KeyVaultsGateKeeper } from '@/server/modules/KeyVaultsEncrypt';
 import { FileS3 } from '@/server/modules/S3';
-import { FileService } from '@/server/services/file';
 
 const usernameSchema = z
   .string()
@@ -36,7 +35,6 @@ const usernameSchema = z
 const userProcedure = authedProcedure.use(serverDatabase).use(async ({ ctx, next }) => {
   return next({
     ctx: {
-      fileService: new FileService(ctx.serverDB, ctx.userId),
       messageModel: new MessageModel(ctx.serverDB, ctx.userId),
       sessionModel: new SessionModel(ctx.serverDB, ctx.userId),
       userModel: new UserModel(ctx.serverDB, ctx.userId),
@@ -66,8 +64,8 @@ export const userRouter = router({
       // `after` may fail outside request scope (e.g., in tests), ignore silently
     }
 
-    // For desktop mode, ensure user exists before getting state
-    if (isDesktop) {
+    // For desktop mode and local no-auth mode, ensure user exists before getting state.
+    if (isDesktop || process.env.LOCAL_NO_AUTH === '1') {
       await UserModel.makeSureUserExist(ctx.serverDB, ctx.userId);
     }
 

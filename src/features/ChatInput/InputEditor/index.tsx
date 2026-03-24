@@ -1,13 +1,13 @@
 import { isDesktop } from '@lobechat/const';
 import { HotkeyEnum, KeyEnum } from '@lobechat/types';
 import { isCommandPressed } from '@lobechat/utils';
-import { INSERT_MENTION_COMMAND, ReactMathPlugin } from '@lobehub/editor';
+import { INSERT_MENTION_COMMAND, ReactMathPlugin, ReactSlashPlugin } from '@lobehub/editor';
 import { Editor, FloatMenu, useEditorState } from '@lobehub/editor/react';
 import { combineKeys } from '@lobehub/ui';
 import { css, cx } from 'antd-style';
 import Fuse from 'fuse.js';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useHotkeysContext } from 'react-hotkeys-hook';
+import { useHotkeys, useHotkeysContext } from 'react-hotkeys-hook';
 
 import { usePasteFile, useUploadFiles } from '@/components/DragUploadZone';
 import { useIMECompositionEvent } from '@/hooks/useIMECompositionEvent';
@@ -24,6 +24,7 @@ import type { MentionMenuState } from './MentionMenu/types';
 import Placeholder from './Placeholder';
 import { CHAT_INPUT_EMBED_PLUGINS, createChatInputRichPlugins } from './plugins';
 import { INSERT_REFER_TOPIC_COMMAND } from './ReferTopic';
+import { useCodexSkillItems } from './useCodexSkillItems';
 import { useMentionCategories } from './useMentionCategories';
 
 const className = cx(css`
@@ -47,6 +48,13 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
   const state = useEditorState(editor);
   const hotkey = useUserStore(settingsSelectors.getHotkeyById(HotkeyEnum.AddUserMessage));
   const { enableScope, disableScope } = useHotkeysContext();
+
+  // Custom hotkey for Plan Mode (Shift+Tab+P)
+  const togglePlanMode = useChatInputStore((s) => s.togglePlanMode);
+  useHotkeys('shift+tab+p', (e) => {
+    e.preventDefault();
+    togglePlanMode();
+  }, { enableOnFormTags: true, enableOnContentEditable: true });
 
   const { compositionProps, isComposingRef } = useIMECompositionEvent();
 
@@ -113,6 +121,8 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
   const enableRichRender = useUserStore(labPreferSelectors.enableInputMarkdown);
 
   const slashActionItems = useSlashActionItems();
+  const codexSkillItems = useCodexSkillItems();
+  
   const slashItems = useCallback(
     async (
       search: { leadOffset: number; matchingString: string; replaceableString: string } | null,
@@ -170,7 +180,13 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
                 if (mention.metadata?.type === 'topic') {
                   return `<refer_topic name="${mention.metadata.topicTitle}" id="${mention.metadata.topicId}" />`;
                 }
-                return `<mention name="${mention.label}" id="${mention.metadata.id}" />`;
+                if (['file', 'task', 'walkthrough', 'implementation_plan'].includes(mention.metadata?.type as string)) {
+                  return `<refer_${mention.metadata?.type} path="${mention.metadata?.path}" name="${mention.label}" />`;
+                }
+                if (mention.metadata?.type === 'conversation') {
+                  return `<refer_conversation id="${mention.metadata?.id}" name="${mention.label}" />`;
+                }
+                return `<mention name="${mention.label}" id="${mention.metadata?.id}" />`;
               },
               maxLength: 50,
               onSelect: (editor, option) => {
@@ -238,7 +254,9 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
           }
         }
       }}
-    />
+    >
+      <ReactSlashPlugin items={codexSkillItems} trigger="$" />
+    </Editor>
   );
 });
 

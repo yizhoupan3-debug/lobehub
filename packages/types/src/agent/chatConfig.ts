@@ -53,6 +53,11 @@ export interface LobeAgentChatConfig extends AgentMemoryChatConfig {
    */
   enableContextCompression?: boolean;
   /**
+   * Number of tokens to preserve uncompressed when context compression is triggered
+   * @default 20000
+   */
+  preserveTokens?: number;
+  /**
    * Enable historical message count
    */
   enableHistoryCount?: boolean;
@@ -169,6 +174,7 @@ export const AgentChatConfigSchema = z
     enableAutoScrollOnStreaming: z.boolean().optional(),
     enableCompressHistory: z.boolean().optional(),
     enableContextCompression: z.boolean().optional(),
+    preserveTokens: z.number().default(20000).optional(),
     enableHistoryCount: z.boolean().optional(),
     enableMaxTokens: z.boolean().optional(),
     enableReasoning: z.boolean().optional(),

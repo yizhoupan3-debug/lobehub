@@ -7,6 +7,7 @@ import {
   type GeneralAgentCompressionResultPayload,
   type InstructionExecutor,
   UsageCounter,
+  splitMessagesForMiddleOut,
 } from '@lobechat/agent-runtime';
 import { LocalSystemManifest } from '@lobechat/builtin-tool-local-system';
 import {
@@ -691,13 +692,17 @@ export const createRuntimeExecutors = (
     const events: AgentEvent[] = [];
     const newState = structuredClone(state);
     const topicId = state.metadata?.topicId;
-    const lastMessage = messages.at(-1);
-    const preservedMessages =
-      messages.length > 1 && lastMessage?.role === 'user' ? [lastMessage] : [];
+    const compressionConfig = state.metadata?.agentConfig?.compressionConfig;
+    
+    // Split messages using Middle-Out strategy, preserving recent tokens
+    const { messagesToCompress, preservedMessages } = splitMessagesForMiddleOut(
+      messages,
+      compressionConfig?.preserveTokens,
+    );
+    
     const preservedMessageIds = new Set(
       preservedMessages.map((message) => message.id).filter((id): id is string => Boolean(id)),
     );
-    const messagesToCompress = preservedMessages.length > 0 ? messages.slice(0, -1) : messages;
     const compressedMessagesFallback = [...messagesToCompress, ...preservedMessages];
 
     if (!topicId || !ctx.userId) {

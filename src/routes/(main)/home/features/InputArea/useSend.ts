@@ -7,6 +7,7 @@ import { builtinAgentSelectors } from '@/store/agent/selectors';
 import { useChatStore } from '@/store/chat';
 import { fileChatSelectors, useFileStore } from '@/store/file';
 import { useHomeStore } from '@/store/home';
+import { useChatInputStore } from '@/features/ChatInput/store';
 
 export const useSend = () => {
   const router = useQueryRoute();
@@ -27,25 +28,35 @@ export const useSend = () => {
     // Require input content (except for default inbox which can have files/context)
     if (!inputMessage && fileList.length === 0 && contextList.length === 0) return;
 
+    let finalMessage = inputMessage;
+    const { isPlanMode, isSubagentMode } = useChatInputStore.getState();
+    if (finalMessage) {
+      if (isPlanMode) {
+        finalMessage = `[PLAN_MODE]\n请为以下需求提供详细的 implementation_plan.md 设计。\n要求：包含 Goal Description、Proposed Changes（明确文件和具体的修改）、Verification Plan。\n\n需求详情：\n${finalMessage}`;
+      } else if (isSubagentMode) {
+        finalMessage = `[SUBAGENT_MODE]\n请为以下需求启动 Codex 并发子代理派发 (subagent-delegation)。\n核心要求：\n1. 采用侧边车架构 (sidecar) 执行并发任务；\n2. 必须显式维护 \`.supervisor_state.json\` 做状态持久化与防崩溃恢复；\n3. 严格遵守 90/10 法则：主线程仅保留高阶决策与结论摘要，将详细探索逻辑、执行堆栈与输出收集分发至子节点。\n\n需求详情：\n${finalMessage}`;
+      }
+    }
+
     try {
       switch (inputActiveMode) {
         case 'agent': {
-          await sendAsAgent(inputMessage);
+          await sendAsAgent(finalMessage);
           break;
         }
 
         case 'group': {
-          await sendAsGroup(inputMessage);
+          await sendAsGroup(finalMessage);
           break;
         }
 
         case 'write': {
-          await sendAsWrite(inputMessage);
+          await sendAsWrite(finalMessage);
           break;
         }
 
         case 'research': {
-          await sendAsResearch(inputMessage);
+          await sendAsResearch(finalMessage);
           break;
         }
 
@@ -57,7 +68,7 @@ export const useSend = () => {
             context: { agentId: inboxAgentId },
             contexts: contextList,
             files: fileList,
-            message: inputMessage,
+            message: finalMessage,
           });
 
           router.push(SESSION_CHAT_URL(inboxAgentId, false));

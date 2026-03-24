@@ -62,6 +62,7 @@ import { LocalSystemIdentifier } from '../types';
 import { resolveArgsWithScope } from '../utils/path';
 
 const LocalSystemApiEnum = {
+  createAutomation: 'createAutomation' as const,
   editLocalFile: 'editLocalFile' as const,
   getCommandOutput: 'getCommandOutput' as const,
   globLocalFiles: 'globLocalFiles' as const,
@@ -418,6 +419,46 @@ class LocalSystemExecutor extends BaseExecutor<typeof LocalSystemApiEnum> {
         content,
         state,
         success: result.success,
+      };
+    } catch (error) {
+      return {
+        content: (error as Error).message,
+        error: { body: error, message: (error as Error).message, type: 'PluginServerError' },
+        success: false,
+      };
+    }
+  };
+
+  createAutomation = async (params: any): Promise<BuiltinToolResult> => {
+    try {
+      const { id, name, prompt, rrule, status = 'ACTIVE' } = params;
+      const codexHome = process.env.CODEX_HOME || require('os').homedir() + '/.codex';
+      
+      // Use JSON.stringify for bulletproof TOML string escaping (handles quotes, newlines, etc.)
+      const tomlContent = `name = ${JSON.stringify(name)}\nstatus = ${JSON.stringify(status)}\nrrule = ${JSON.stringify(rrule)}\nmodel = "claude-3-7-sonnet"\naction_runner = "codex_agno_runtime"\n\n[[tasks]]\ntype = "prompt"\ncontent = ${JSON.stringify(prompt)}\n`;
+      
+      const targetPath = `${codexHome}/automations/${id}/automation.toml`;
+      
+      await localFileService.runCommand({ 
+        command: `mkdir -p "${codexHome}/automations/${id}"`, 
+        description: 'Create automation directory' 
+      });
+
+      const writeResult = await localFileService.writeFile({
+        path: targetPath,
+        content: tomlContent
+      });
+
+      if (!writeResult.success) {
+         return { content: `Failed to write automation: ${writeResult.error}`, success: false };
+      }
+
+      const content = `Successfully created automation task '${name}' at ${targetPath}`;
+
+      return {
+        content,
+        state: { id, name, prompt, rrule, status, path: targetPath },
+        success: true,
       };
     } catch (error) {
       return {

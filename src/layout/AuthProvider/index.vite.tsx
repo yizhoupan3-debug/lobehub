@@ -3,10 +3,15 @@ import { type PropsWithChildren } from 'react';
 
 import BetterAuth from './BetterAuth';
 import Desktop from './Desktop';
+import NoAuth from './NoAuth';
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
   if (isDesktop) {
     return <Desktop>{children}</Desktop>;
+  }
+
+  if (process.env.NEXT_PUBLIC_LOCAL_NO_AUTH === '1') {
+    return <NoAuth>{children}</NoAuth>;
   }
 
   // In SPA/Vite mode, always use BetterAuth.

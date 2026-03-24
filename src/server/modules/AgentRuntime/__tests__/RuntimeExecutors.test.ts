@@ -149,6 +149,9 @@ describe('RuntimeExecutors', () => {
         agentId: 'agent-123',
         threadId: 'thread-123',
         topicId: 'topic-123',
+        agentConfig: {
+          compressionConfig: { preserveTokens: 0 },
+        },
       },
       modelRuntimeConfig: {
         model: 'gpt-4',
@@ -351,13 +354,13 @@ describe('RuntimeExecutors', () => {
         ...ctx,
       });
       const state = createMockState({
-        messages: [{ content: 'history', role: 'user' }],
+        messages: [{ content: 'history1', role: 'user' }, { content: 'history2', role: 'user' }],
         metadata: {
           agentId: 'agent-123',
         },
       });
 
-      const instruction = createCompressContextInstruction([{ content: 'history', role: 'user' }]);
+      const instruction = createCompressContextInstruction(state.messages);
 
       const result = await executors.compress_context!(instruction, state);
 
@@ -371,10 +374,10 @@ describe('RuntimeExecutors', () => {
         userId: undefined,
       });
       const state = createMockState({
-        messages: [{ content: 'history', role: 'user' }],
+        messages: [{ content: 'history1', role: 'user' }, { content: 'history2', role: 'user' }],
       });
 
-      const instruction = createCompressContextInstruction([{ content: 'history', role: 'user' }]);
+      const instruction = createCompressContextInstruction(state.messages);
 
       const result = await executors.compress_context!(instruction, state);
 
@@ -411,11 +414,11 @@ describe('RuntimeExecutors', () => {
 
       const executors = createRuntimeExecutors(ctx);
       const state = createMockState({
-        messages: [{ content: 'history', role: 'user' }],
+        messages: [{ content: 'history1', role: 'user' }, { content: 'history2', role: 'user' }],
         modelRuntimeConfig: undefined,
       });
 
-      const instruction = createCompressContextInstruction([{ content: 'history', role: 'user' }]);
+      const instruction = createCompressContextInstruction(state.messages);
 
       const result = await executors.compress_context!(instruction, state);
 
@@ -436,10 +439,10 @@ describe('RuntimeExecutors', () => {
       ]);
       const executors = createRuntimeExecutors(ctx);
       const state = createMockState({
-        messages: [{ content: 'history', role: 'user' }],
+        messages: [{ content: 'history1', role: 'user' }, { content: 'history2', role: 'user' }],
       });
 
-      const instruction = createCompressContextInstruction([{ content: 'history', role: 'user' }]);
+      const instruction = createCompressContextInstruction(state.messages);
 
       const result = await executors.compress_context!(instruction, state);
 
@@ -517,7 +520,7 @@ describe('RuntimeExecutors', () => {
 
       const executors = createRuntimeExecutors(ctx);
       const state = createMockState({
-        messages: [{ content: 'history', role: 'user' }],
+        messages: [{ content: 'history1', role: 'user' }, { content: 'history2', role: 'user' }],
       });
 
       const instruction = createCompressContextInstruction(state.messages);
@@ -594,7 +597,7 @@ describe('RuntimeExecutors', () => {
 
       const executors = createRuntimeExecutors(ctx);
       const state = createMockState({
-        messages: [{ content: 'history', role: 'user' }],
+        messages: [{ content: 'history1', role: 'user' }, { content: 'history2', role: 'user' }],
       });
 
       const instruction = createCompressContextInstruction(state.messages);

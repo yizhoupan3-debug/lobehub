@@ -10,7 +10,12 @@ import { type HomeStore } from '@/store/home/store';
 import { type StoreSetter } from '@/store/types';
 import { setNamespace } from '@/utils/storeDebug';
 
-import { type StarterMode } from './initialState';
+import {
+  WORKSPACES_STORAGE_KEY,
+  type SidebarMode,
+  type StarterMode,
+  type WorkspaceFolder,
+} from './initialState';
 
 const n = setNamespace('homeInput');
 
@@ -28,9 +33,87 @@ export class HomeInputActionImpl {
     this.#get = get;
   }
 
+  // ─── Input Mode ──────────────────────────────────────────────────── //
+
   clearInputMode = (): void => {
     this.#set({ inputActiveMode: null }, false, n('clearInputMode'));
   };
+
+  setInputActiveMode = (mode: StarterMode): void => {
+    this.#set({ inputActiveMode: mode }, false, n('setInputActiveMode', mode));
+  };
+
+  setNavigate = (navigate: NavigateFunction): void => {
+    this.#set({ navigate }, false, n('setNavigate'));
+  };
+
+  // ─── Sidebar Mode ────────────────────────────────────────────────── //
+
+  /** Switch sidebar between 'session' history and 'workspace' (Cursor-like) view. */
+  setSidebarMode = (mode: SidebarMode): void => {
+    this.#set({ sidebarMode: mode }, false, n('setSidebarMode', mode));
+  };
+
+  // ─── Workspace Path (for AI context injection) ───────────────────── //
+
+  /** Set the active workspace directory for project-based AI context. */
+  setWorkspacePath = (path: string | null): void => {
+    this.#set({ workspacePath: path }, false, n('setWorkspacePath', path));
+  };
+
+  /** Clear workspace — revert to session-based mode. */
+  clearWorkspacePath = (): void => {
+    this.#set({ workspacePath: null }, false, n('clearWorkspacePath'));
+  };
+
+  // ─── Workspace Folder CRUD ───────────────────────────────────────── //
+
+  /** Add a new workspace folder. Switches sidebar to workspace mode automatically. */
+  addWorkspace = (folder: Omit<WorkspaceFolder, 'createdAt'>): void => {
+    const existing = this.#get().workspaces;
+    if (existing.some((w) => w.id === folder.id)) return; // avoid duplicates
+
+    const newWorkspace: WorkspaceFolder = { ...folder, createdAt: Date.now() };
+    const updated = [...existing, newWorkspace];
+    this.#set(
+      { sidebarMode: 'workspace', workspacePath: folder.path, workspaces: updated },
+      false,
+      n('addWorkspace', folder.path),
+    );
+    this.#persistWorkspaces(updated);
+  };
+
+  /** Remove a workspace folder. Does NOT delete sessions inside it. */
+  removeWorkspace = (id: string): void => {
+    const updated = this.#get().workspaces.filter((w) => w.id !== id);
+    this.#set({ workspaces: updated }, false, n('removeWorkspace', id));
+    this.#persistWorkspaces(updated);
+    // If the removed workspace was the active one, clear the path
+    if (this.#get().workspacePath === id) {
+      this.#set({ workspacePath: updated[0]?.path ?? null }, false, n('removeWorkspace/clearPath'));
+    }
+  };
+
+  /** Load workspaces from localStorage — call once on mount. */
+  loadWorkspaces = (): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(WORKSPACES_STORAGE_KEY);
+      const workspaces: WorkspaceFolder[] = raw ? JSON.parse(raw) : [];
+      this.#set({ workspaces }, false, n('loadWorkspaces'));
+    } catch {
+      // ignore parse errors
+    }
+  };
+
+  /** Toggle collapsed state for a workspace folder's thread list. */
+  toggleWorkspaceCollapsed = (id: string): void => {
+    const prev = this.#get().collapsedWorkspaceIds;
+    const updated = prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id];
+    this.#set({ collapsedWorkspaceIds: updated }, false, n('toggleWorkspaceCollapsed', id));
+  };
+
+  // ─── Send Actions ────────────────────────────────────────────────── //
 
   sendAsAgent = async (message: string): Promise<string> => {
     this.#set({ homeInputLoading: true }, false, n('sendAsAgent/start'));
@@ -46,12 +129,17 @@ export class HomeInputActionImpl {
       const model = inboxConfig?.model;
       const provider = inboxConfig?.provider;
 
-      // 2. Create new Agent with inherited model/provider
+      // 2. Create new Agent — inject workspace CWD into system role when set
+      const workspacePath = this.#get().workspacePath;
+      const workspacePrefix = workspacePath
+        ? `[Workspace] cwd: ${workspacePath}\n\n`
+        : '';
+
       const result = await agentState.createAgent({
         config: {
           model,
           provider,
-          systemRole: message,
+          systemRole: workspacePrefix + message,
           title: message?.slice(0, 50) || 'New Agent',
         },
       });
@@ -70,7 +158,6 @@ export class HomeInputActionImpl {
         const { sendMessage } = useChatStore.getState();
         const agentBuilderId = builtinAgentSelectors.agentBuilderId(agentState);
 
-        // Update agentBuilder's model to match inbox selection
         if (agentBuilderId && model && provider) {
           await agentState.updateAgentConfigById(agentBuilderId, { model, provider });
         }
@@ -83,7 +170,6 @@ export class HomeInputActionImpl {
 
       // 6. Clear mode
       this.#set({ inputActiveMode: null }, false, n('sendAsAgent/clearMode'));
-
       return result.agentId!;
     } finally {
       this.#set({ homeInputLoading: false }, false, n('sendAsAgent/end'));
@@ -96,7 +182,6 @@ export class HomeInputActionImpl {
     try {
       const agentState = getAgentStoreState();
 
-      // 1. Get model/provider config from inbox agent
       const inboxAgentId = builtinAgentSelectors.inboxAgentId(agentState);
       const inboxConfig = inboxAgentId
         ? agentSelectors.getAgentConfigById(inboxAgentId)(agentState)
@@ -104,32 +189,30 @@ export class HomeInputActionImpl {
       const model = inboxConfig?.model;
       const provider = inboxConfig?.provider;
 
-      // 2. Create new Group with inherited model/provider for orchestrator
+      const workspacePath = this.#get().workspacePath;
+      const workspacePrefix = workspacePath
+        ? `[Workspace] cwd: ${workspacePath}\n\n`
+        : '';
+
       const { group } = await chatGroupService.createGroup({
         config: {
-          systemPrompt: message,
+          systemPrompt: workspacePrefix + message,
         },
         title: message?.slice(0, 50) || 'New Group',
       });
 
-      // 3. Load groups and refresh
       const groupStore = getChatGroupStoreState();
       await groupStore.loadGroups();
-
-      // 4. Refresh sidebar agent list
       this.#get().refreshAgentList();
 
-      // 5. Navigate to Group profile page
       const { navigate } = this.#get();
       if (navigate) {
         navigate(`/group/${group.id}/profile`);
       }
 
-      // 6. Update groupAgentBuilder's model config and send initial message
       const groupAgentBuilderId = builtinAgentSelectors.groupAgentBuilderId(agentState);
 
       if (groupAgentBuilderId) {
-        // Update groupAgentBuilder's model to match inbox selection
         if (model && provider) {
           await agentState.updateAgentConfigById(groupAgentBuilderId, { model, provider });
         }
@@ -141,9 +224,7 @@ export class HomeInputActionImpl {
         });
       }
 
-      // 7. Clear mode
       this.#set({ inputActiveMode: null }, false, n('sendAsGroup/clearMode'));
-
       return group.id;
     } finally {
       this.#set({ homeInputLoading: false }, false, n('sendAsGroup/end'));
@@ -151,10 +232,7 @@ export class HomeInputActionImpl {
   };
 
   sendAsResearch = async (message: string): Promise<void> => {
-    // TODO: Implement DeepResearch mode
     console.info('sendAsResearch:', message);
-
-    // Clear mode
     this.#set({ inputActiveMode: null }, false, n('sendAsResearch'));
   };
 
@@ -164,7 +242,6 @@ export class HomeInputActionImpl {
     try {
       const agentState = getAgentStoreState();
 
-      // 1. Get model/provider config from inbox agent
       const inboxAgentId = builtinAgentSelectors.inboxAgentId(agentState);
       const inboxConfig = inboxAgentId
         ? agentSelectors.getAgentConfigById(inboxAgentId)(agentState)
@@ -172,24 +249,20 @@ export class HomeInputActionImpl {
       const model = inboxConfig?.model;
       const provider = inboxConfig?.provider;
 
-      // 2. Create new Document
       const newDoc = await documentService.createDocument({
         editorData: '{}',
         fileType: 'custom/document',
         title: message?.slice(0, 50) || 'Untitled',
       });
 
-      // 3. Navigate to Page
       const { navigate } = this.#get();
       if (navigate) {
         navigate(`/page/${newDoc.id}`);
       }
 
-      // 4. Update pageAgent's model config and send initial message
       const pageAgentId = builtinAgentSelectors.pageAgentId(agentState);
 
       if (pageAgentId) {
-        // Update pageAgent's model to match inbox selection
         if (model && provider) {
           await agentState.updateAgentConfigById(pageAgentId, { model, provider });
         }
@@ -201,21 +274,23 @@ export class HomeInputActionImpl {
         });
       }
 
-      // 5. Clear mode
       this.#set({ inputActiveMode: null }, false, n('sendAsWrite/clearMode'));
-
       return newDoc.id;
     } finally {
       this.#set({ homeInputLoading: false }, false, n('sendAsWrite/end'));
     }
   };
 
-  setInputActiveMode = (mode: StarterMode): void => {
-    this.#set({ inputActiveMode: mode }, false, n('setInputActiveMode', mode));
-  };
+  // ─── Private Helpers ─────────────────────────────────────────────── //
 
-  setNavigate = (navigate: NavigateFunction): void => {
-    this.#set({ navigate }, false, n('setNavigate'));
+  /** Persist workspaces list to localStorage. */
+  #persistWorkspaces = (workspaces: WorkspaceFolder[]): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(WORKSPACES_STORAGE_KEY, JSON.stringify(workspaces));
+    } catch {
+      // ignore quota errors
+    }
   };
 }
 

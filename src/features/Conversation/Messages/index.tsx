@@ -66,10 +66,13 @@ const MessageItem = memo<MessageItemProps>(
     const message = useConversationStore(dataSelectors.getDisplayMessageById(id), isEqual);
     const role = message?.role;
 
-    const [editing, isMessageCreating] = useConversationStore((s) => [
-      messageStateSelectors.isMessageEditing(id)(s),
-      messageStateSelectors.isMessageCreating(id)(s),
-    ]);
+    const [editing, isMessageCreating] = useConversationStore(
+      (s) => [
+        messageStateSelectors.isMessageEditing(id)(s),
+        messageStateSelectors.isMessageCreating(id)(s),
+      ],
+      isEqual,
+    );
 
     const { handleContextMenu } = useChatItemContextMenu({
       editing,

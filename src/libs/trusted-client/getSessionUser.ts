@@ -8,6 +8,14 @@ import { type TrustedClientUserInfo } from './index';
  * @returns User info or undefined if not authenticated
  */
 export const getSessionUser = async (): Promise<TrustedClientUserInfo | undefined> => {
+  if (process.env.LOCAL_NO_AUTH === '1') {
+    return {
+      email: 'local-no-auth@localhost',
+      name: 'Local User',
+      userId: process.env.MOCK_DEV_USER_ID || 'local-dev-user',
+    };
+  }
+
   try {
     // Dynamic import to avoid validator ESM/CJS issue during sitemap generation
     const { auth } = await import('@/auth');

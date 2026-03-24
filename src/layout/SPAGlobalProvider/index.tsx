@@ -34,6 +34,7 @@ const SPAGlobalProvider = memo<PropsWithChildren>(({ children }) => {
   }, []);
 
   const serverConfig: SPAServerConfig | undefined = window.__SERVER_CONFIG__;
+  const isLocalNoAuth = process.env.NEXT_PUBLIC_LOCAL_NO_AUTH === '1';
 
   const locale = document.documentElement.lang || 'en-US';
   const isMobile =
@@ -50,7 +51,7 @@ const SPAGlobalProvider = memo<PropsWithChildren>(({ children }) => {
           >
             <QueryProvider>
               <AuthProvider>
-                <StoreInitialization />
+                {!isLocalNoAuth && <StoreInitialization />}
 
                 {isDesktop && <ServerVersionOutdatedAlert />}
                 <FaviconProvider>

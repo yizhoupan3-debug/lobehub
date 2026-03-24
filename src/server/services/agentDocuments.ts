@@ -89,48 +89,52 @@ export class AgentDocumentsService {
   ) {
     const templateSet = getDocumentTemplate(templateId);
 
-    for (const template of templateSet.templates) {
-      await this.agentDocumentModel.upsert(
-        agentId,
-        template.filename,
-        template.content,
-        template.loadPosition,
-        template.loadRules,
-        templateId,
-        template.metadata,
-        template.policyLoadFormat
-          ? {
-              context: {
-                policyLoadFormat: template.policyLoadFormat,
-              },
-            }
-          : undefined,
-      );
-    }
+    await Promise.all(
+      templateSet.templates.map((template) =>
+        this.agentDocumentModel.upsert(
+          agentId,
+          template.filename,
+          template.content,
+          template.loadPosition,
+          template.loadRules,
+          templateId,
+          template.metadata,
+          template.policyLoadFormat
+            ? {
+                context: {
+                  policyLoadFormat: template.policyLoadFormat,
+                },
+              }
+            : undefined,
+        )
+      )
+    );
   }
 
   /**
    * Initialize from a custom template set.
    */
   async initializeFromCustomTemplate(agentId: string, templateSet: DocumentTemplateSet) {
-    for (const template of templateSet.templates) {
-      await this.agentDocumentModel.upsert(
-        agentId,
-        template.filename,
-        template.content,
-        template.loadPosition,
-        template.loadRules,
-        templateSet.id,
-        template.metadata,
-        template.policyLoadFormat
-          ? {
-              context: {
-                policyLoadFormat: template.policyLoadFormat,
-              },
-            }
-          : undefined,
-      );
-    }
+    await Promise.all(
+      templateSet.templates.map((template) =>
+        this.agentDocumentModel.upsert(
+          agentId,
+          template.filename,
+          template.content,
+          template.loadPosition,
+          template.loadRules,
+          templateSet.id,
+          template.metadata,
+          template.policyLoadFormat
+            ? {
+                context: {
+                  policyLoadFormat: template.policyLoadFormat,
+                },
+              }
+            : undefined,
+        )
+      )
+    );
   }
 
   /**
@@ -305,20 +309,22 @@ export class AgentDocumentsService {
   async cloneDocuments(sourceAgentId: string, targetAgentId: string) {
     const sourceDocs = await this.getAgentDocuments(sourceAgentId);
 
-    for (const doc of sourceDocs) {
-      await this.upsertDocument({
-        agentId: targetAgentId,
-        content: doc.content,
-        filename: doc.filename,
-        loadPosition:
-          (doc.policy?.context?.position as DocumentLoadPosition | undefined) ||
-          DocumentLoadPosition.BEFORE_FIRST_USER,
-        loadRules: doc.loadRules,
-        metadata: doc.metadata || undefined,
-        policy: doc.policy || undefined,
-        templateId: doc.templateId || undefined,
-      });
-    }
+    await Promise.all(
+      sourceDocs.map((doc) =>
+        this.upsertDocument({
+          agentId: targetAgentId,
+          content: doc.content,
+          filename: doc.filename,
+          loadPosition:
+            (doc.policy?.context?.position as DocumentLoadPosition | undefined) ||
+            DocumentLoadPosition.BEFORE_FIRST_USER,
+          loadRules: doc.loadRules,
+          metadata: doc.metadata || undefined,
+          policy: doc.policy || undefined,
+          templateId: doc.templateId || undefined,
+        })
+      )
+    );
   }
 
   async editDocumentById(documentId: string, content: string, expectedAgentId?: string) {

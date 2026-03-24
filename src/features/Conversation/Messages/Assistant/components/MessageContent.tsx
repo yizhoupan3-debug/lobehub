@@ -14,7 +14,39 @@ import FileChunks from '../../components/FileChunks';
 import ImageFileListViewer from '../../components/ImageFileListViewer';
 import Reasoning from '../../components/Reasoning';
 import SearchGrounding from '../../components/SearchGrounding';
+import SubagentTrace from '../../components/SubagentTrace';
+import ReconnectTrace from '../../components/ReconnectTrace';
 import { useMarkdown } from '../useMarkdown';
+
+export const useSubagentTraceParse = (content: string) => {
+  if (!content) return { cleanContent: '', traces: [] };
+  const sidecarRegex = /<sidecar>([\s\S]*?)<\/sidecar>/g;
+  let cleanContent = content;
+  const traces: string[] = [];
+
+  let match;
+  while ((match = sidecarRegex.exec(content)) !== null) {
+    traces.push(match[1]);
+    cleanContent = cleanContent.replace(match[0], '');
+  }
+
+  return { cleanContent, traces };
+};
+
+export const useReconnectTraceParse = (content: string) => {
+  if (!content) return { cleanContent: '', reconnectTraces: [] };
+  const reconnectRegex = /<reconnect>([\s\S]*?)<\/reconnect>/g;
+  let cleanContent = content;
+  const reconnectTraces: string[] = [];
+
+  let match;
+  while ((match = reconnectRegex.exec(content)) !== null) {
+    reconnectTraces.push(match[1]);
+    cleanContent = cleanContent.replace(match[0], '');
+  }
+
+  return { cleanContent, reconnectTraces };
+};
 
 const MessageContent = memo<UIChatMessage>(
   ({ id, tools, content, chunksList, search, imageList, metadata, ...props }) => {
@@ -64,6 +96,9 @@ const MessageContent = memo<UIChatMessage>(
 
     if (isCollapsed) return <CollapsedMessage content={content} id={id} />;
 
+    const { cleanContent: noSidecarContent, traces } = useSubagentTraceParse(content);
+    const { cleanContent, reconnectTraces } = useReconnectTraceParse(noSidecarContent);
+
     return (
       <Flexbox gap={8} id={id}>
         {showSearch && (
@@ -76,8 +111,10 @@ const MessageContent = memo<UIChatMessage>(
         )}
         {showFileChunks && <FileChunks data={chunksList} />}
         {showReasoning && <Reasoning {...props.reasoning} id={id} />}
+        <SubagentTrace traces={traces} generating={generating} />
+        <ReconnectTrace traces={reconnectTraces} />
         <DisplayContent
-          content={content}
+          content={cleanContent}
           hasImages={showImageItems}
           id={id}
           isMultimodal={metadata?.isMultimodal}

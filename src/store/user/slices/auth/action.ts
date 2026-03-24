@@ -9,6 +9,8 @@ interface AuthProvidersData {
   providers: SSOProvider[];
 }
 
+const isLocalNoAuth = process.env.NEXT_PUBLIC_LOCAL_NO_AUTH === '1';
+
 const fetchAuthProvidersData = async (): Promise<AuthProvidersData> => {
   const { accountInfo, listAccounts } = await import('@/libs/better-auth/auth-client');
   const result = await listAccounts();
@@ -50,6 +52,11 @@ export class UserAuthActionImpl {
     // Skip if already loaded
     if (this.#get().isLoadedAuthProviders) return;
 
+    if (isLocalNoAuth) {
+      this.#set({ authProviders: [], hasPasswordAccount: false, isLoadedAuthProviders: true });
+      return;
+    }
+
     try {
       const { hasPasswordAccount, providers } = await fetchAuthProvidersData();
       this.#set({ authProviders: providers, hasPasswordAccount, isLoadedAuthProviders: true });
@@ -60,6 +67,11 @@ export class UserAuthActionImpl {
   };
 
   logout = async (): Promise<void> => {
+    if (isLocalNoAuth) {
+      window.location.href = '/';
+      return;
+    }
+
     const { signOut } = await import('@/libs/better-auth/auth-client');
     await signOut({
       fetchOptions: {
@@ -73,6 +85,8 @@ export class UserAuthActionImpl {
   };
 
   openLogin = async (): Promise<void> => {
+    if (isLocalNoAuth) return;
+
     // Skip if already on a login page (/signin, /signup)
     const pathname = location.pathname;
     if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
@@ -84,6 +98,11 @@ export class UserAuthActionImpl {
   };
 
   refreshAuthProviders = async (): Promise<void> => {
+    if (isLocalNoAuth) {
+      this.#set({ authProviders: [], hasPasswordAccount: false, isLoadedAuthProviders: true });
+      return;
+    }
+
     try {
       const { hasPasswordAccount, providers } = await fetchAuthProvidersData();
       this.#set({ authProviders: providers, hasPasswordAccount });

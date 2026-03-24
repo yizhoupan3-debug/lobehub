@@ -273,6 +273,36 @@ export const mobileRoutes: RouteObject[] = [
         path: 'me',
       },
 
+      // Automation routes
+      {
+        children: [
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/automation'),
+              'Mobile > Automation'
+            ),
+            index: true,
+          },
+        ],
+        errorElement: <ErrorBoundary resetPath="/automation" />,
+        path: 'automation',
+      },
+
+      // Knowledge Base routes
+      {
+        children: [
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/knowledge'),
+              'Mobile > Knowledge Base'
+            ),
+            index: true,
+          },
+        ],
+        errorElement: <ErrorBoundary resetPath="/knowledge" />,
+        path: 'knowledge',
+      },
+
       // Default route - home page
       {
         children: [

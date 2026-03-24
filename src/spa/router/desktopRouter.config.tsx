@@ -537,6 +537,36 @@ export const desktopRoutes: RouteObject[] = [
         path: 'page',
       },
 
+      // Automation routes
+      {
+        children: [
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/automation'),
+              'Desktop > Automation'
+            ),
+            index: true,
+          },
+        ],
+        errorElement: <ErrorBoundary resetPath="/automation" />,
+        path: 'automation',
+      },
+
+      // Knowledge Base routes
+      {
+        children: [
+          {
+            element: dynamicElement(
+              () => import('@/routes/(main)/knowledge'),
+              'Desktop > Knowledge Base'
+            ),
+            index: true,
+          },
+        ],
+        errorElement: <ErrorBoundary resetPath="/knowledge" />,
+        path: 'knowledge',
+      },
+
       // Default route - home page (handled by persistent layout)
       {
         index: true,

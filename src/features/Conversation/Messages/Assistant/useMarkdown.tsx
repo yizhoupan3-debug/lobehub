@@ -5,6 +5,8 @@ import isEqual from 'fast-deep-equal';
 import { useMemo } from 'react';
 
 import { HtmlPreviewAction } from '@/components/HtmlPreview';
+import { useGlobalStore } from '@/store/global';
+import { useHomeStore } from '@/store/home';
 import { useUserStore } from '@/store/user';
 import { userGeneralSettingsSelectors } from '@/store/user/selectors';
 
@@ -29,16 +31,52 @@ export const useMarkdown = (id: string): Partial<MarkdownProps> => {
   const generating = useConversationStore(messageStateSelectors.isMessageGenerating(id));
   const animated = transitionMode === 'fadeIn' && generating;
 
-  const components = useMemo(
-    () =>
-      Object.fromEntries(
-        markdownElements.map((element) => {
-          const Component = element.Component;
-          return [element.tag, (props: any) => <Component {...props} id={id} />];
-        }),
-      ),
-    [id],
-  );
+  const isWorkspace = useHomeStore((s) => s.sidebarMode) === 'workspace';
+  const openPreview = useGlobalStore((s) => s.openWorkspacePreview);
+
+  const components = useMemo(() => {
+    const mapped = Object.fromEntries(
+      markdownElements.map((element) => {
+        const Component = element.Component;
+        return [element.tag, (props: any) => <Component {...props} id={id} />];
+      })
+    );
+
+    mapped.a = (props: any) => {
+      const { href, children, ...rest } = props;
+      
+      const handleLinkClick = (e: any) => {
+        if (!isWorkspace || !href) return;
+        
+        try {
+          // Check if href seems like a file with extension
+          const urlObj = new URL(href, window.location.origin);
+          const pathname = urlObj.pathname;
+          const extMatch = pathname.match(/\.([a-z0-9]+)$/i);
+          
+          if (extMatch) {
+            const ext = extMatch[1].toLowerCase();
+            const supportList = ['pdf', 'md', 'tex', 'txt', 'json', 'py', 'js', 'ts', 'tsx', 'jsx', 'csv', 'r', 'css', 'html', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'pptx', 'docx', 'xlsx'];
+            
+            if (supportList.includes(ext)) {
+              e.preventDefault();
+              openPreview({
+                url: href,
+                type: ext,
+                title: typeof children === 'string' ? children : pathname.split('/').pop() || 'Document'
+              });
+            }
+          }
+        } catch(err) {
+          // Ignore invalid URLs
+        }
+      };
+
+      return <a href={href} onClick={handleLinkClick} {...rest}>{children}</a>;
+    };
+
+    return mapped;
+  }, [id, isWorkspace, openPreview]);
 
   return useMemo(
     () =>

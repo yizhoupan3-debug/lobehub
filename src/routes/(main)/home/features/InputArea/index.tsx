@@ -1,45 +1,35 @@
 import { Flexbox } from '@lobehub/ui';
-import { AnimatePresence, m as motion } from 'motion/react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 import DragUploadZone, { useUploadFiles } from '@/components/DragUploadZone';
 import { type ActionKeys } from '@/features/ChatInput';
 import { ChatInputProvider, DesktopChatInput } from '@/features/ChatInput';
+import { useChatInputStore } from '@/features/ChatInput/store';
 import { useAgentStore } from '@/store/agent';
 import { agentByIdSelectors } from '@/store/agent/selectors';
 import { useChatStore } from '@/store/chat';
 import { useHomeStore } from '@/store/home';
 import { serverConfigSelectors, useServerConfigStore } from '@/store/serverConfig';
 
-import CommunityRecommend from '../CommunityRecommend';
-import SuggestQuestions from '../SuggestQuestions';
 import ModeTag from './ModeTag';
 import SkillInstallBanner from './SkillInstallBanner';
 import StarterList from './StarterList';
 import { useSend } from './useSend';
 
-const leftActions: ActionKeys[] = ['model', 'search', 'fileUpload', 'tools'];
+const leftActions: ActionKeys[] = ['model', 'plusMenu', 'subagentMode', 'search', 'fileUpload', 'tools'];
 
 const InputArea = () => {
   const { loading, send, inboxAgentId } = useSend();
   const inputActiveMode = useHomeStore((s) => s.inputActiveMode);
+  
+  const isPlanMode = useChatInputStore((s) => s.isPlanMode);
+  const isSubagentMode = useChatInputStore((s) => s.isSubagentMode);
+  const isConcurrentMode = isPlanMode || isSubagentMode;
+
   const isLobehubSkillEnabled = useServerConfigStore(serverConfigSelectors.enableLobehubSkill);
   const isKlavisEnabled = useServerConfigStore(serverConfigSelectors.enableKlavis);
   const showSkillBanner = isLobehubSkillEnabled || isKlavisEnabled;
   const chatInputRef = useRef<HTMLDivElement>(null);
-
-  // When a starter mode is activated (e.g. Create Agent / Create Group / Write),
-  // the SuggestQuestions panel renders below the ChatInput and may push the total
-  // content height beyond the viewport, causing the ChatInput to scroll out of view.
-  // Re-focus the editor and scroll it into view so the user can type immediately.
-  useEffect(() => {
-    if (!inputActiveMode) return;
-
-    requestAnimationFrame(() => {
-      chatInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      useChatStore.getState().mainInputEditor?.focus();
-    });
-  }, [inputActiveMode]);
 
   // Get agent's model info for vision support check
   const model = useAgentStore((s) => agentByIdSelectors.getAgentModelById(inboxAgentId)(s));
@@ -49,7 +39,6 @@ const InputArea = () => {
   const { handleUploadFiles } = useUploadFiles({ model, provider });
 
   // A slot to insert content above the chat input
-  // Override some default behavior of the chat input
   const inputContainerProps = useMemo(
     () => ({
       minHeight: 88,
@@ -61,10 +50,6 @@ const InputArea = () => {
     }),
     [],
   );
-
-  const hideStarterList = inputActiveMode && ['agent', 'group', 'write'].includes(inputActiveMode);
-  const showSuggestQuestions =
-    !inputActiveMode || ['agent', 'group', 'write'].includes(inputActiveMode);
 
   const extraActionItems = useMemo(
     () =>
@@ -100,8 +85,8 @@ const InputArea = () => {
               useChatStore.setState({ mainInputEditor: instance });
             }}
             sendButtonProps={{
-              disabled: loading,
-              generating: loading,
+              disabled: isConcurrentMode ? false : loading,
+              generating: isConcurrentMode ? false : loading,
               onStop: () => {},
               shape: 'round',
             }}
@@ -120,30 +105,10 @@ const InputArea = () => {
         </DragUploadZone>
       </Flexbox>
 
-      {/* Keep StarterList mounted to prevent useInitBuiltinAgent hooks from re-running */}
-      <div style={{ display: hideStarterList ? 'none' : undefined }}>
+      {/* Keep StarterList hidden but mounted to preserve useInitBuiltinAgent hooks */}
+      <div style={{ display: 'none' }}>
         <StarterList />
       </div>
-      <AnimatePresence mode="popLayout">
-        {showSuggestQuestions && (
-          <motion.div
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 8 }}
-            initial={{ opacity: 0, scale: 0.98, y: 8 }}
-            key={inputActiveMode ?? 'chat'}
-            style={{ marginTop: inputActiveMode ? 0 : 24 }}
-            transition={{
-              duration: 0.2,
-              ease: [0.4, 0, 0.2, 1],
-            }}
-          >
-            <Flexbox gap={24}>
-              <SuggestQuestions mode={inputActiveMode} />
-              <CommunityRecommend mode={inputActiveMode} />
-            </Flexbox>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </Flexbox>
   );
 };

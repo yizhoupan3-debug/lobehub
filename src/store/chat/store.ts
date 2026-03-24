@@ -77,6 +77,18 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
   shallow,
 );
 
+// Auto garbage collection for inactive maps when session / topic changes
+useChatStore.subscribe(
+  (s) => ({ agentId: s.activeAgentId, groupId: s.activeGroupId, topicId: s.activeTopicId }),
+  () => {
+    const { clearRawClientContexts } = useChatStore.getState();
+    if (clearRawClientContexts) {
+      clearRawClientContexts();
+    }
+  },
+  { equalityFn: shallow }
+);
+
 expose('chat', useChatStore);
 
 export const getChatStoreState = () => useChatStore.getState();
