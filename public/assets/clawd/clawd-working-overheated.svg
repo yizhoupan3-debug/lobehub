@@ -48,7 +48,7 @@
 
   <g class="body-exhausted">
     <!-- Sploot Legs -->
-    <g fill="#DE886D">
+    <g fill="#6B82F5">
       <rect x="3" y="9" width="1" height="1"/>
       <rect x="5" y="9" width="1" height="1"/>
       <rect x="9" y="9" width="1" height="1"/>
@@ -56,14 +56,14 @@
     </g>
 
     <!-- Torso Sploot -->
-    <g fill="#DE886D">
+    <g fill="#6B82F5">
       <rect x="1" y="10" width="13" height="5"/>
       <rect x="-1" y="13" width="2" height="2"/> <!-- left arm down -->
     </g>
     
     <!-- Fanning Arm -->
     <g class="arm-fan">
-      <rect x="14" y="11" width="2" height="2" fill="#DE886D"/>
+      <rect x="14" y="11" width="2" height="2" fill="#6B82F5"/>
     </g>
     
     <!-- Tired Eyes -->

@@ -76,7 +76,7 @@
   <g transform="rotate(-12, 7.5, 15)">
 
     <!-- Legs -->
-    <g fill="#DE886D">
+    <g fill="#6B82F5">
       <rect x="3" y="11" width="1" height="4"/>
       <rect x="5" y="11" width="1" height="4"/>
       <rect x="9" y="11" width="1" height="4"/>
@@ -86,11 +86,11 @@
     <g id="body-js">
       <g class="breathe-anim">
         <!-- Torso -->
-        <rect x="2" y="6" width="11" height="7" fill="#DE886D"/>
+        <rect x="2" y="6" width="11" height="7" fill="#6B82F5"/>
 
         <!-- Left Arm — happy continuous wave + flower on top -->
         <g class="arm-happy">
-          <rect x="-1.5" y="9" width="4.5" height="2" fill="#DE886D"/>
+          <rect x="-1.5" y="9" width="4.5" height="2" fill="#6B82F5"/>
           <!-- Flower held at hand tip -->
           <!-- Stem (black, from hand top to flower) -->
           <rect x="-1.5" y="6" width="0.5" height="3" fill="#000000"/>
@@ -104,7 +104,7 @@
         </g>
 
         <!-- Right Arm -->
-        <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+        <rect x="13" y="9" width="2" height="2" fill="#6B82F5"/>
 
         <!-- Eyes: ^^ happy squint with blink -->
         <g class="eyes-happy-blink">

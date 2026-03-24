@@ -96,7 +96,7 @@
     </g>
 
     <!-- Body Base Color Group -->
-    <g id="body-color-group" fill="#DE886D">
+    <g id="body-color-group" fill="#6B82F5">
       <!-- Scrambling Legs -->
       <rect id="outer-left-leg" class="leg leg-1" x="3" y="13" width="1" height="2"/>
       <rect id="inner-left-leg" class="leg leg-2" x="5" y="13" width="1" height="2"/>
