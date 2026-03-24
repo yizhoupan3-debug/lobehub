@@ -44,7 +44,7 @@ const useStyles = createStyles(({ token, css }) => ({
   content: css`
     overflow: hidden;
     flex: 1;
-  `
+  `,
 }));
 
 const WorkspaceLeftPanel = memo(() => {
@@ -57,15 +57,20 @@ const WorkspaceLeftPanel = memo(() => {
       backgroundColor={cssVar.colorBgContainer}
       expand={show}
       expandable={false}
-      minWidth={200}
       maxWidth={800}
+      minWidth={200}
       placement="left"
       size={{ width: '33vw', height: '100%' }}
     >
       <div className={styles.container}>
         <div className={styles.header}>
           <span className={styles.title}>工作区文件</span>
-          <ActionIcon icon={PanelLeftClose} size="small" title="关闭" onClick={() => togglePanel()} />
+          <ActionIcon
+            icon={PanelLeftClose}
+            size="small"
+            title="关闭"
+            onClick={() => togglePanel()}
+          />
         </div>
         <div className={styles.content}>
           <FileTreeViewer />

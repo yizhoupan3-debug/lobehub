@@ -5,7 +5,7 @@ import { type ChatInputActionsProps } from '@lobehub/editor/react';
 import { type MenuProps } from '@lobehub/ui';
 import { Alert, Flexbox } from '@lobehub/ui';
 import { type ReactNode } from 'react';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type ActionKeys } from '@/features/ChatInput';
@@ -173,15 +173,18 @@ const ChatInput = memo<ChatInputProps>(
         // Fire and forget - send with captured message
         await sendMessage({ editorData, files: currentFileList, message, pageSelections });
       },
-      [isInputLoading, sendMessage],
+      [isInputLoading, sendMessage, isConcurrentMode],
     );
 
-    const sendButtonProps: SendButtonProps = {
-      disabled,
-      generating: isConcurrentMode ? false : isInputLoading,
-      onStop: stopGenerating,
-      ...customSendButtonProps,
-    };
+    const sendButtonProps: SendButtonProps = useMemo(
+      () => ({
+        disabled,
+        generating: isConcurrentMode ? false : isInputLoading,
+        onStop: stopGenerating,
+        ...customSendButtonProps,
+      }),
+      [disabled, isConcurrentMode, isInputLoading, stopGenerating, customSendButtonProps],
+    );
 
     const defaultContent = (
       <WideScreenContainer style={skipScrollMarginWithList ? { marginTop: -12 } : undefined}>

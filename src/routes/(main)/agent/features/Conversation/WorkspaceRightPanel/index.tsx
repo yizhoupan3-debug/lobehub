@@ -44,7 +44,7 @@ const useStyles = createStyles(({ token, css }) => ({
   content: css`
     overflow: hidden;
     flex: 1;
-  `
+  `,
 }));
 
 const WorkspaceRightPanel = memo(() => {
@@ -58,21 +58,22 @@ const WorkspaceRightPanel = memo(() => {
       backgroundColor={cssVar.colorBgContainer}
       expand={!!mode}
       expandable={false}
-      minWidth={200}
       maxWidth={800}
+      minWidth={200}
       placement="right"
       size={{ width: '33vw', height: '100%' }}
     >
       <div className={styles.container}>
         <div className={styles.header}>
-          <span className={styles.title}>
-            {previewFile?.title || '文档预览'}
-          </span>
-          <ActionIcon icon={PanelRightClose} size="small" title="关闭" onClick={() => closePanel()} />
+          <span className={styles.title}>{previewFile?.title || '文档预览'}</span>
+          <ActionIcon
+            icon={PanelRightClose}
+            size="small"
+            title="关闭"
+            onClick={() => closePanel()}
+          />
         </div>
-        <div className={styles.content}>
-          {mode === 'preview' && <DocumentPreviewer />}
-        </div>
+        <div className={styles.content}>{mode === 'preview' && <DocumentPreviewer />}</div>
       </div>
     </DraggablePanel>
   );

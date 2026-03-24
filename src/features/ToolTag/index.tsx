@@ -23,7 +23,17 @@ import {
  */
 const KlavisIcon = memo<Pick<KlavisServerType, 'icon' | 'label'>>(({ icon, label }) => {
   if (typeof icon === 'string') {
-    return <img alt={label} height={16} src={icon} style={{ flexShrink: 0 }} width={16} />;
+    return (
+      <img
+        alt={label}
+        decoding="async"
+        height={16}
+        loading="lazy"
+        src={icon}
+        style={{ flexShrink: 0 }}
+        width={16}
+      />
+    );
   }
 
   return <Icon fill={cssVar.colorText} icon={icon} size={16} />;

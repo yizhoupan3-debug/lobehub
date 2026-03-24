@@ -170,6 +170,7 @@ export interface SystemStatus {
   showSystemRole?: boolean;
   showVideoPanel?: boolean;
   showVideoTopicPanel?: boolean;
+  showWorkspaceLeftPanel?: boolean;
   systemRoleExpandedMap: Record<string, boolean>;
   /**
    * Whether to display tokens in short format
@@ -182,7 +183,6 @@ export interface SystemStatus {
   videoPanelWidth: number;
   videoTopicPanelWidth?: number;
   videoTopicViewMode?: 'grid' | 'list';
-  showWorkspaceLeftPanel?: boolean;
   workspacePreviewFile?: { url: string; type: string; title: string; fileId?: string } | null;
   workspaceRightPanelMode?: 'preview' | false;
   zenMode?: boolean;

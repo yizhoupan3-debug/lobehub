@@ -127,7 +127,14 @@ const SkillInstallBanner = memo(() => {
               style={{ marginLeft: index === 0 ? 0 : -6, zIndex: index }}
             >
               {typeof icon === 'string' ? (
-                <img alt={key} height={ICON_SIZE} src={icon} width={ICON_SIZE} />
+                <img
+                  alt={key}
+                  decoding="async"
+                  height={ICON_SIZE}
+                  loading="lazy"
+                  src={icon}
+                  width={ICON_SIZE}
+                />
               ) : (
                 createElement(icon, { size: ICON_SIZE })
               )}

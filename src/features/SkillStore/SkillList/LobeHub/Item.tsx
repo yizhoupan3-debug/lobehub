@@ -55,7 +55,9 @@ const Item = memo<ItemProps>(
 
     const renderIcon = () => {
       if (typeof icon === 'string') {
-        return <img alt={label} height={40} src={icon} width={40} />;
+        return (
+          <img alt={label} decoding="async" height={40} loading="lazy" src={icon} width={40} />
+        );
       }
       return <Icon fill={cssVar.colorText} icon={icon as any} size={40} />;
     };

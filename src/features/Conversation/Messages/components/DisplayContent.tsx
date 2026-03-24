@@ -1,13 +1,15 @@
 import { deserializeParts } from '@lobechat/utils';
 import { type MarkdownProps } from '@lobehub/ui';
+import dynamic from 'next/dynamic';
 import { memo } from 'react';
 
 import { LOADING_FLAT } from '@/const/message';
-import MarkdownMessage from '@/features/Conversation/Markdown';
 
 import { normalizeThinkTags, processWithArtifact } from '../../utils/markdown';
 import ContentLoading from './ContentLoading';
 import { RichContentRenderer } from './RichContentRenderer';
+
+const MarkdownMessage = dynamic(() => import('@/features/Conversation/Markdown'), { ssr: false });
 
 const DisplayContent = memo<{
   addIdOnDOM?: boolean;
