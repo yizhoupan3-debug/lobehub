@@ -85,6 +85,23 @@ export const useStyles = createStyles(({ css, cssVar, token }) => ({
   astContainer: css`
     font-size: 13px;
   `,
+  taskTitle: css`
+    font-size: 16px;
+    font-weight: 700;
+    color: ${cssVar.colorText};
+    line-height: 1.4;
+    margin-bottom: 6px;
+  `,
+  taskSummary: css`
+    font-size: 14px;
+    color: ${cssVar.colorTextSecondary};
+    line-height: 1.6;
+  `,
+  divider: css`
+    height: 1px;
+    background: ${cssVar.colorBorderSecondary};
+    margin: 16px 0;
+  `,
   sectionBlock: css`
     display: flex;
     flex-direction: column;
@@ -97,10 +114,17 @@ export const useStyles = createStyles(({ css, cssVar, token }) => ({
     letter-spacing: 0.5px;
   `,
   fileChip: css`
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 6px;
-    background: ${cssVar.colorFillTertiary};
-    border: 1px solid ${cssVar.colorBorder};
+    background: transparent;
+    border: none;
+    color: ${cssVar.colorTextSecondary};
+    font-size: 13px;
+    
+    &:hover {
+      background: ${cssVar.colorFillTertiary};
+      color: ${cssVar.colorText};
+    }
   `,
   collapseAllBtn: css`
     font-size: 12px;
@@ -139,15 +163,15 @@ export const useStyles = createStyles(({ css, cssVar, token }) => ({
     top: 0;
     width: 22px;
     height: 22px;
-    border-radius: 50%;
-    background: ${token.colorBgLayout};
-    border: 1px solid ${cssVar.colorTextTertiary};
+    border-radius: 4px;
+    background: transparent;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
-    font-weight: bold;
-    color: ${cssVar.colorTextSecondary};
+    font-size: 11px;
+    font-weight: 600;
+    color: ${cssVar.colorTextTertiary};
     z-index: 1;
   `,
   timelineContent: css`

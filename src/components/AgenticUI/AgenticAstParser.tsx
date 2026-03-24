@@ -1,8 +1,19 @@
+import { SiReact } from '@icons-pack/react-simple-icons';
 import { Flexbox, Icon, Markdown } from '@lobehub/ui';
-import { ChevronDown, ChevronRight, FileCode2, FileText,FolderTree } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileCode2, FileText, FolderTree, ListTodo, Map, Waypoints } from 'lucide-react';
 import { useState } from 'react';
 
 import { useStyles } from './style';
+
+const getFileIconComponent = (f: string) => {
+  const name = f.toLowerCase();
+  if (name.includes('walkthrough')) return <Icon icon={Waypoints} style={{ color: 'var(--color-text-secondary)' }} />;
+  if (name.includes('task')) return <Icon icon={ListTodo} style={{ color: 'var(--color-text-secondary)' }} />;
+  if (name.includes('implementation_plan')) return <Icon icon={Map} style={{ color: 'var(--color-text-secondary)' }} />;
+  if (name.endsWith('.tsx') || name.endsWith('.ts') || name.endsWith('.jsx')) return <SiReact size={14} style={{ color: '#61DAFB' }} />;
+  if (name.endsWith('.md')) return <Icon icon={FileText} style={{ color: 'var(--color-text-secondary)' }} />;
+  return <Icon icon={FileCode2} style={{ color: 'var(--color-text-secondary)' }} />;
+};
 
 function parseAgenticLog(text: string) {
   const files: string[] = [];
@@ -24,7 +35,7 @@ function parseAgenticLog(text: string) {
     let currentStep: any = null;
     
     for (const line of lines) {
-      const stepMatch = line.match(/^(\d+)[.|、]\s+(.*)/);
+      const stepMatch = line.match(/^(\d+)[.|、\s]+\s*(.*)/);
       if (stepMatch) {
         if (currentStep) progressUpdates.push(currentStep);
         currentStep = { id: stepMatch[1], title: stepMatch[2], content: [] };
@@ -35,8 +46,20 @@ function parseAgenticLog(text: string) {
     if (currentStep) progressUpdates.push(currentStep);
   }
 
-  const isMatched = files.length > 0 || progressUpdates.length > 0;
-  return { files, progressUpdates, isMatched };
+  let taskTitle = '';
+  let taskSummary = '';
+  const headerText = text.split(/Files Edited/i)[0] || '';
+  
+  const headerLines = headerText.split('\n').map(l => l.replace(/^>\s?/, '').trim()).filter(Boolean);
+  const contentLines = headerLines.filter(l => !l.toLowerCase().startsWith('thought for'));
+  
+  if (contentLines.length > 0) {
+    taskTitle = contentLines[0].replace(/^\*\*|##?\s?|\*\*$/g, '').trim();
+    taskSummary = contentLines.slice(1).join('\n').trim();
+  }
+
+  const isMatched = files.length > 0 || progressUpdates.length > 0 || taskTitle;
+  return { files, progressUpdates, isMatched, taskTitle, taskSummary };
 }
 
 // 深度解析 Timeline 的内容项，拆出 Action、Thought 等
@@ -155,7 +178,7 @@ const TimelineStep = ({ step, isLast, expandAll }: { step: any, isLast: boolean,
 
 export const AgenticAstParser = ({ content }: { content: string }) => {
   const { styles } = useStyles();
-  const { files, progressUpdates, isMatched } = parseAgenticLog(content);
+  const { files, progressUpdates, isMatched, taskTitle, taskSummary } = parseAgenticLog(content);
   const [expandAll, setExpandAll] = useState(false);
 
   if (!isMatched) {
@@ -164,22 +187,34 @@ export const AgenticAstParser = ({ content }: { content: string }) => {
 
   return (
     <div className={styles.astContainer}>
+      {taskTitle && (
+        <div style={{ marginBottom: 16 }}>
+          <div className={styles.taskTitle}>{taskTitle}</div>
+          {taskSummary && <div className={styles.taskSummary}>{taskSummary}</div>}
+        </div>
+      )}
+
        {files.length > 0 && (
-         <div className={styles.sectionBlock}>
-           <div className={styles.sectionTitle}>Files Edited</div>
-           <Flexbox horizontal gap={12} style={{ flexWrap: 'wrap', marginTop: 12, marginBottom: 12 }}>
-             {files.map(f => (
-               <Flexbox horizontal align="center" className={styles.fileChip} gap={8} key={f}>
-                 <Icon icon={FileCode2} style={{ color: 'var(--color-primary)' }}/>
-                 <span style={{ fontWeight: 600 }}>{f}</span>
-               </Flexbox>
-             ))}
-           </Flexbox>
-         </div>
+         <>
+           {(taskTitle || taskSummary) && <div className={styles.divider} />}
+           <div className={styles.sectionBlock}>
+             <div className={styles.sectionTitle}>Files Edited</div>
+             <Flexbox horizontal gap={12} style={{ flexWrap: 'wrap', marginTop: 12, marginBottom: 12 }}>
+               {files.map(f => (
+                 <Flexbox horizontal align="center" className={styles.fileChip} gap={6} key={f}>
+                   {getFileIconComponent(f)}
+                   <span style={{ fontWeight: 600 }}>{f}</span>
+                 </Flexbox>
+               ))}
+             </Flexbox>
+           </div>
+         </>
        )}
 
        {progressUpdates.length > 0 && (
-         <div className={styles.sectionBlock} style={{ marginTop: 24 }}>
+         <>
+           {(files.length > 0 || taskTitle || taskSummary) && <div className={styles.divider} />}
+           <div className={styles.sectionBlock}>
            <Flexbox horizontal align="center" justify="space-between" style={{ marginBottom: 16 }}>
              <div className={styles.sectionTitle}>Progress Updates</div>
              <div className={styles.collapseAllBtn} onClick={() => setExpandAll(!expandAll)}>
