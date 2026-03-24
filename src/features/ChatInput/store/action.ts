@@ -12,8 +12,8 @@ export interface Action {
   setExpand: (expend: boolean) => void;
   setJSONState: (content: any) => void;
   setPlanMode: (isPlanMode: boolean) => void;
-  setSubagentMode: (isSubagentMode: boolean) => void;
   setShowTypoBar: (show: boolean) => void;
+  setSubagentMode: (isSubagentMode: boolean) => void;
   togglePlanMode: () => void;
   toggleSubagentMode: () => void;
   updateMarkdownContent: () => void;

@@ -22,11 +22,11 @@ const HeaderActions = memo(() => {
     <Flexbox horizontal align={'center'} gap={4}>
       {isWorkspace && (
         <ActionIcon 
+          active={rightPanelMode === 'tree'} 
           icon={FolderTree} 
-          size={DESKTOP_HEADER_ICON_SIZE} 
-          onClick={() => toggleTree()}
+          size={DESKTOP_HEADER_ICON_SIZE}
           title="切换文件目录树"
-          active={rightPanelMode === 'tree'}
+          onClick={() => toggleTree()}
         />
       )}
       <DropdownMenu items={menuItems}>

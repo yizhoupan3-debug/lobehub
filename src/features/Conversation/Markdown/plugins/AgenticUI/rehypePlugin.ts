@@ -10,7 +10,7 @@ function createAgenticRehypePlugin(tagName: string) {
         
         const openTagMatch = valueStr.match(new RegExp(`<${tagName}([^>]*)>`));
         if (openTagMatch) {
-          const attrRegex = /([a-zA-Z0-9_-]+)="([^"]*)"/g;
+          const attrRegex = /([\w-]+)="([^"]*)"/g;
           let match;
           while ((match = attrRegex.exec(openTagMatch[1])) !== null) {
             attributes[match[1]] = match[2];
@@ -23,7 +23,7 @@ function createAgenticRehypePlugin(tagName: string) {
         const newNode = {
           children: [{ type: 'text', value: innerText }],
           properties: attributes,
-          tagName: tagName,
+          tagName,
           type: 'element',
         };
         parent.children.splice(index as number, 1, newNode);
@@ -38,7 +38,7 @@ function createAgenticRehypePlugin(tagName: string) {
           const attributes: Record<string, string> = {};
           const openTagMatch = valueStr.match(new RegExp(`<${tagName}([^>]*)>`));
           if (openTagMatch) {
-            const attrRegex = /([a-zA-Z0-9_-]+)="([^"]*)"/g;
+            const attrRegex = /([\w-]+)="([^"]*)"/g;
             let match;
             while ((match = attrRegex.exec(openTagMatch[1])) !== null) {
               attributes[match[1]] = match[2];
@@ -50,17 +50,15 @@ function createAgenticRehypePlugin(tagName: string) {
             .map((child: any) => {
               if (child.type === 'raw') return child.value;
               if (child.type === 'text') return child.value;
-              if (child.type === 'element') {
-                // very basic inner text extraction for child elements
-                if (child.children?.[0]?.value) return child.children[0].value;
-              }
+              if (child.type === 'element' && // very basic inner text extraction for child elements
+                child.children?.[0]?.value) return child.children[0].value;
               return '';
             })
             .join('')
             .trim();
             
           // If the last child is the closing tag but it wasn't stripped properly, handle it
-          const lastChild = node.children[node.children.length - 1];
+          const lastChild = node.children.at(-1);
           if (lastChild && lastChild.type === 'raw' && !lastChild.value.includes(`</${tagName}>`)) {
              innerText += lastChild.value;
           }
@@ -68,7 +66,7 @@ function createAgenticRehypePlugin(tagName: string) {
           const newNode = {
             children: [{ type: 'text', value: innerText }],
             properties: attributes,
-            tagName: tagName,
+            tagName,
             type: 'element',
           };
 

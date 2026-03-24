@@ -49,8 +49,8 @@ const Thinking = memo<ThinkingProps>((props) => {
     <Accordion
       expandedKeys={showDetail ? ['thinking'] : []}
       gap={0}
-      onExpandedChange={(keys) => setShowDetail(keys.length > 0)}
       style={{ border: 'none', background: 'transparent' }}
+      onExpandedChange={(keys) => setShowDetail(keys.length > 0)}
     >
       <AccordionItem
         itemKey={'thinking'}

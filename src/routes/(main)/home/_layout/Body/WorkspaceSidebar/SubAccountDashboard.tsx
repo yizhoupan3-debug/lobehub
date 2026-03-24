@@ -1,33 +1,37 @@
 import { Icon } from '@lobehub/ui';
-import { Skeleton, Progress, Tooltip } from 'antd';
+import { Progress, Skeleton } from 'antd';
 import { createStyles } from 'antd-style';
-import { DatabaseIcon, MailIcon, ClockIcon, ActivityIcon, CheckCircle2Icon } from 'lucide-react';
+import { DatabaseIcon, MailIcon } from 'lucide-react';
 import { memo } from 'react';
 import useSWR from 'swr';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
-    margin: 12px 8px;
+    margin-block: 12px;
+    margin-inline: 8px;
     padding: 12px;
-    border-radius: 8px;
-    background: ${token.colorFillQuaternary};
     border: 1px solid ${token.colorBorderSecondary};
+    border-radius: 8px;
+
+    background: ${token.colorFillQuaternary};
   `,
   mainApi: css`
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-bottom: 8px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid ${token.colorBorderSecondary};
+    justify-content: space-between;
+
+    margin-block-end: 8px;
+    padding-block-end: 8px;
+    border-block-end: 1px solid ${token.colorBorderSecondary};
   `,
   mainApiTitle: css`
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
     font-size: 13px;
     font-weight: 600;
     color: ${token.colorText};
-    display: flex;
-    align-items: center;
-    gap: 6px;
   `,
   accountList: css`
     display: flex;
@@ -36,40 +40,48 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   accountCard: css`
     padding: 8px;
+    border: 1px solid ${token.colorBorderSecondary};
     border-radius: 6px;
     background: ${token.colorFillTertiary};
-    border: 1px solid ${token.colorBorderSecondary};
   `,
   accountHeader: css`
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
+    margin-block-end: 6px;
+
     font-size: 12px;
-    margin-bottom: 6px;
   `,
   email: css`
-    color: ${token.colorText};
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 4px;
     overflow: hidden;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+
+    max-width: 140px;
+
+    font-weight: 500;
+    color: ${token.colorText};
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 140px;
   `,
   plusTag: css`
-    font-size: 10px;
-    padding: 1px 4px;
+    padding-block: 1px;
+    padding-inline: 4px;
+    border: 1px solid rgb(186 143 255 / 30%);
     border-radius: 4px;
-    background: rgba(186, 143, 255, 0.15);
+
+    font-size: 10px;
     color: #ba8fff;
-    border: 1px solid rgba(186, 143, 255, 0.3);
+
+    background: rgb(186 143 255 / 15%);
   `,
   statsRow: css`
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
     font-size: 11px;
     color: ${token.colorTextSecondary};
   `,
@@ -79,10 +91,10 @@ const useStyles = createStyles(({ token, css }) => ({
     width: 45%;
   `,
   processDot: css`
+    display: inline-block;
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    display: inline-block;
   `,
 }));
 
@@ -154,7 +166,7 @@ export const SubAccountDashboard = memo(() => {
           }
 
           return (
-            <div key={acc.id} className={styles.accountCard}>
+            <div className={styles.accountCard} key={acc.id}>
               {/* Email & Auth Status */}
               <div className={styles.accountHeader}>
                 <div className={styles.email} title={acc.email || '未绑定邮箱'}>
@@ -172,11 +184,11 @@ export const SubAccountDashboard = memo(() => {
               <div className={styles.statsRow}>
                 <div className={styles.progressWrapper}>
                   <span>5h 占额 {percent5h}%</span>
-                  <Progress percent={percent5h} size="small" showInfo={false} strokeColor={percent5h > 80 ? theme.colorError : theme.colorPrimary} />
+                  <Progress percent={percent5h} showInfo={false} size="small" strokeColor={percent5h > 80 ? theme.colorError : theme.colorPrimary} />
                 </div>
                 <div className={styles.progressWrapper}>
                   <span>7d 占额 {percent7d}%</span>
-                  <Progress percent={percent7d} size="small" showInfo={false} strokeColor={percent7d > 80 ? theme.colorWarning : theme.colorSuccess} />
+                  <Progress percent={percent7d} showInfo={false} size="small" strokeColor={percent7d > 80 ? theme.colorWarning : theme.colorSuccess} />
                 </div>
               </div>
             </div>

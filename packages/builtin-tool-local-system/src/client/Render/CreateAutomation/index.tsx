@@ -8,18 +8,22 @@ import React, { memo } from 'react';
 const useStyles = createStyles(({ css, token }) => ({
   card: css`
     position: relative;
+
     overflow: hidden;
+
     padding: 16px;
-    border-radius: 16px;
-    background: linear-gradient(145deg, ${token.colorFillTertiary}, ${token.colorFillQuaternary});
     border: 1px solid ${token.colorBorderSecondary};
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+
+    background: linear-gradient(145deg, ${token.colorFillTertiary}, ${token.colorFillQuaternary});
+    box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
+
     transition: all 0.3s ease;
 
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
       transform: translateY(-2px);
       border-color: ${token.colorPrimaryBorder};
+      box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
     }
     
     a {
@@ -27,23 +31,28 @@ const useStyles = createStyles(({ css, token }) => ({
     }
   `,
   glow: css`
+    pointer-events: none;
+
     position: absolute;
-    top: -20px;
-    right: -20px;
+    inset-block-start: -20px;
+    inset-inline-end: -20px;
+
     width: 100px;
     height: 100px;
+    border-radius: 50%;
+
+    opacity: 0.15;
     background: ${token.colorPrimary};
     filter: blur(50px);
-    opacity: 0.15;
-    border-radius: 50%;
+
     animation: pulse 4s ease-in-out infinite alternate;
-    pointer-events: none;
     
     @keyframes pulse {
       0% {
         transform: scale(1);
         opacity: 0.1;
       }
+
       100% {
         transform: scale(1.5);
         opacity: 0.25;
@@ -58,31 +67,39 @@ const useStyles = createStyles(({ css, token }) => ({
   `,
   tag: css`
     display: inline-flex;
-    align-items: center;
     gap: 4px;
-    padding: 2px 8px;
+    align-items: center;
+
+    padding-block: 2px;
+    padding-inline: 8px;
+    border: 1px solid ${token.colorSuccessBorder};
+    border-radius: 12px;
+
     font-size: 12px;
     font-weight: 500;
-    border-radius: 12px;
-    background: ${token.colorSuccessBg};
     color: ${token.colorSuccess};
-    border: 1px solid ${token.colorSuccessBorder};
+
+    background: ${token.colorSuccessBg};
   `,
   rrule: css`
     display: inline-flex;
-    align-items: center;
     gap: 4px;
-    padding: 2px 8px;
+    align-items: center;
+
+    padding-block: 2px;
+    padding-inline: 8px;
+    border-radius: 12px;
+
     font-size: 12px;
     font-weight: 500;
-    border-radius: 12px;
-    background: ${token.colorFillSecondary};
     color: ${token.colorTextSecondary};
+
+    background: ${token.colorFillSecondary};
   `,
   promptBox: css`
-    border-radius: 8px;
     overflow: hidden;
     border: 1px solid ${token.colorBorderSecondary};
+    border-radius: 8px;
     background: ${token.colorBgContainer};
   `
 }));
@@ -104,8 +121,8 @@ const CreateAutomation = memo<BuiltinRenderProps<CreateAutomationArgs>>(({ args 
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95, y: 10 }}
       transition={{ duration: 0.4, type: 'spring', stiffness: 200, damping: 20 }}
     >
       <Flexbox className={styles.card} gap={16}>
@@ -128,7 +145,7 @@ const CreateAutomation = memo<BuiltinRenderProps<CreateAutomationArgs>>(({ args 
                 {rrule}
               </div>
             )}
-            <a href="/automation" target="_blank" rel="noreferrer" title="View in Dashboard">
+            <a href="/automation" rel="noreferrer" target="_blank" title="View in Dashboard">
               <ActionIcon icon={ArrowUpRight} size="small" />
             </a>
           </Flexbox>
@@ -136,9 +153,9 @@ const CreateAutomation = memo<BuiltinRenderProps<CreateAutomationArgs>>(({ args 
 
         {prompt && (
           <motion.div 
+            animate={{ opacity: 1, y: 0 }}
             className={styles.promptBox}
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
             <Highlighter

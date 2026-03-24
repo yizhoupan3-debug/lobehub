@@ -5,16 +5,15 @@ import Memory from './Memory';
 import Mention from './Mention';
 import Model from './Model';
 import Params from './Params';
+import PlusMenu from './PlusMenu';
 import SaveTopic from './SaveTopic';
 import Search from './Search';
 import STT from './STT';
+import SubagentMode from './SubagentMode';
 import { MainToken, PortalToken } from './Token';
 import Tools from './Tools';
 import Typo from './Typo';
 import Upload from './Upload';
-import PlusMenu from './PlusMenu';
-
-import SubagentMode from './SubagentMode';
 
 export const actionMap = {
   agentMode: AgentMode,

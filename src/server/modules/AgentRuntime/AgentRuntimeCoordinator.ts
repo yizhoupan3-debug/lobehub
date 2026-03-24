@@ -98,6 +98,13 @@ export class AgentRuntimeCoordinator {
           state.status,
         );
         log('[%s] Agent runtime reached terminal state: %s', operationId, state.status);
+
+        // Auto-cleanup operation data to prevent memory leak
+        setTimeout(() => {
+          this.deleteAgentOperation(operationId).catch((error) => {
+            console.error(`[%s] Failed to auto-cleanup operation:`, operationId, error);
+          });
+        }, 5 * 60 * 1000).unref();
       }
     } catch (error) {
       console.error('Failed to save agent state and handle events:', error);
@@ -129,6 +136,13 @@ export class AgentRuntimeCoordinator {
           operationId,
           stepResult.newState.status,
         );
+
+        // Auto-cleanup operation data to prevent memory leak
+        setTimeout(() => {
+          this.deleteAgentOperation(operationId).catch((error) => {
+            console.error(`[%s] Failed to auto-cleanup operation:`, operationId, error);
+          });
+        }, 5 * 60 * 1000).unref();
       }
     } catch (error) {
       console.error('Failed to save step result and handle events:', error);

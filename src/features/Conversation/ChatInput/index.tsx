@@ -10,11 +10,11 @@ import { useTranslation } from 'react-i18next';
 
 import { type ActionKeys } from '@/features/ChatInput';
 import { ChatInputProvider, DesktopChatInput } from '@/features/ChatInput';
+import { useChatInputStore } from '@/features/ChatInput/store';
 import {
   type SendButtonHandler,
   type SendButtonProps,
 } from '@/features/ChatInput/store/initialState';
-import { useChatInputStore } from '@/features/ChatInput/store';
 import { useChatStore } from '@/store/chat';
 import { fileChatSelectors, useFileStore } from '@/store/file';
 

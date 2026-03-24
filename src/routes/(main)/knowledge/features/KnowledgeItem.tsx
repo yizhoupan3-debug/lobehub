@@ -9,11 +9,11 @@ import {
   Dropdown,
   Empty,
   List,
+  message,
   Spin,
   Tag,
   Tooltip,
   Typography,
-  message,
 } from 'antd';
 import { createStaticStyles } from 'antd-style';
 import dayjs from 'dayjs';
@@ -35,7 +35,7 @@ import { memo, useState } from 'react';
 import useSWR from 'swr';
 
 import { antigravityKnowledgeService } from '@/services/antigravityKnowledge';
-import { AntigravityKnowledgeBaseItem } from '@/types/antigravityKnowledge';
+import type { AntigravityKnowledgeBaseItem } from '@/types/antigravityKnowledge';
 
 dayjs.extend(relativeTime);
 
@@ -44,83 +44,96 @@ const { Paragraph, Text } = Typography;
 const styles = createStaticStyles(({ css, cssVar }) => ({
   actionsMenu: css`
     position: absolute;
-    top: 8px;
-    right: 8px;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
   `,
   collapse: css`
-    margin-top: 16px;
-    background-color: transparent !important;
+    margin-block-start: 16px;
     border: none !important;
+    background-color: transparent !important;
+
     .ant-collapse-item {
+      overflow: hidden;
       border: 1px solid ${cssVar.colorBorderSecondary} !important;
       border-radius: 8px !important;
-      overflow: hidden;
     }
+
     .ant-collapse-header {
-      padding: 10px 16px !important;
+      padding-block: 10px !important;
+      padding-inline: 16px !important;
       background: ${cssVar.colorFillQuaternary} !important;
     }
+
     .ant-collapse-content {
+      border-block-start: 1px solid ${cssVar.colorBorderSecondary} !important;
       background-color: transparent !important;
-      border-top: 1px solid ${cssVar.colorBorderSecondary} !important;
     }
   `,
   container: css`
     display: flex;
     flex-direction: column;
+
     padding: 20px;
-    border-radius: 12px;
     border: 1px solid ${cssVar.colorBorderSecondary};
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-radius: 12px;
+
     background: ${cssVar.colorBgContainer};
     box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      0 4px 6px -1px rgb(0 0 0 / 5%),
+      0 2px 4px -1px rgb(0 0 0 / 3%);
+
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
     &:hover {
+      transform: translateY(-2px);
       border-color: ${cssVar.colorPrimaryBorderHover};
       box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      transform: translateY(-2px);
+        0 10px 15px -3px rgb(0 0 0 / 10%),
+        0 4px 6px -2px rgb(0 0 0 / 5%);
     }
   `,
   content: css`
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 6px;
     overflow: hidden;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
   `,
   drawerHeader: css`
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid ${cssVar.colorBorderSecondary};
+    justify-content: space-between;
+
+    margin-block-end: 24px;
+    padding-block-end: 16px;
+    border-block-end: 1px solid ${cssVar.colorBorderSecondary};
   `,
   header: css`
+    position: relative;
     display: flex;
     gap: 16px;
-    position: relative;
   `,
   statItem: css`
     display: flex;
-    align-items: center;
     gap: 4px;
-    background: ${cssVar.colorFillQuaternary};
-    padding: 2px 8px;
+    align-items: center;
+
+    padding-block: 2px;
+    padding-inline: 8px;
     border-radius: 12px;
+
+    background: ${cssVar.colorFillQuaternary};
   `,
   stats: css`
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
-    margin-top: 12px;
+    align-items: center;
+
+    margin-block-start: 12px;
+
     font-size: 12px;
     color: ${cssVar.colorTextSecondary};
-    align-items: center;
-    flex-wrap: wrap;
   `,
 }));
 
@@ -132,7 +145,7 @@ const getFileMeta = (filename: string) => {
   if (filename.endsWith('.json')) {
     return { icon: <FileJson color="#eab308" size={16} />, type: 'JSON' };
   }
-  if (filename.match(/\.(ts|tsx|js|jsx)$/)) {
+  if (/\.(ts|tsx|js|jsx)$/.test(filename)) {
     return { icon: <FileCode2 color="#3b82f6" size={16} />, type: 'Source Code' };
   }
   return { icon: <FileTextIcon color="#64748b" size={16} />, type: 'Document' };
@@ -237,6 +250,7 @@ const KnowledgeItem = memo<KnowledgeItemProps>(({ knowledge }) => {
               children: (
                 <List
                   dataSource={knowledge.references}
+                  size="small"
                   renderItem={(ref: any) => {
                     const isFile = ref.type === 'file';
                     const filename = String(ref.value);
@@ -253,9 +267,9 @@ const KnowledgeItem = memo<KnowledgeItemProps>(({ knowledge }) => {
                                   ghost
                                   icon={<Eye size={14} />}
                                   key="preview"
-                                  onClick={() => handlePreview(filename)}
                                   size="small"
                                   type="primary"
+                                  onClick={() => handlePreview(filename)}
                                 >
                                   Preview
                                 </Button>,
@@ -279,7 +293,6 @@ const KnowledgeItem = memo<KnowledgeItemProps>(({ knowledge }) => {
                       </List.Item>
                     );
                   }}
-                  size="small"
                 />
               ),
               key: '1',
@@ -290,11 +303,11 @@ const KnowledgeItem = memo<KnowledgeItemProps>(({ knowledge }) => {
       )}
 
       <Drawer
-        onClose={() => setDrawerOpen(false)}
         open={drawerOpen}
         styles={{ body: { padding: '24px 32px' } }}
         title={null}
         width={800}
+        onClose={() => setDrawerOpen(false)}
       >
         <div className={styles.drawerHeader}>
           <div>

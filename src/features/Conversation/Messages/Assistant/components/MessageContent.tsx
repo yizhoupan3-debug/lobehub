@@ -13,9 +13,9 @@ import DisplayContent from '../../components/DisplayContent';
 import FileChunks from '../../components/FileChunks';
 import ImageFileListViewer from '../../components/ImageFileListViewer';
 import Reasoning from '../../components/Reasoning';
+import ReconnectTrace from '../../components/ReconnectTrace';
 import SearchGrounding from '../../components/SearchGrounding';
 import SubagentTrace from '../../components/SubagentTrace';
-import ReconnectTrace from '../../components/ReconnectTrace';
 import { useMarkdown } from '../useMarkdown';
 
 export const useSubagentTraceParse = (content: string) => {
@@ -111,7 +111,7 @@ const MessageContent = memo<UIChatMessage>(
         )}
         {showFileChunks && <FileChunks data={chunksList} />}
         {showReasoning && <Reasoning {...props.reasoning} id={id} />}
-        <SubagentTrace traces={traces} generating={generating} />
+        <SubagentTrace generating={generating} traces={traces} />
         <ReconnectTrace traces={reconnectTraces} />
         <DisplayContent
           content={cleanContent}

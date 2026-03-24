@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
-import { NextResponse } from 'next/server';
 import path from 'node:path';
+
+import { NextResponse } from 'next/server';
 
 export const GET = async (req: Request) => {
   try {

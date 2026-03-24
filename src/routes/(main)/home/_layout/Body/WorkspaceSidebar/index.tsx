@@ -1,11 +1,11 @@
 'use client';
 
-import { ActionIcon, Avatar, ContextMenu, Flexbox, Text } from '@lobehub/ui';
-import { Dropdown, Input, message, Modal } from 'antd';
+import { ActionIcon, ContextMenu } from '@lobehub/ui';
 import { useLocalStorageState } from 'ahooks';
+import { Dropdown, Input, message, Modal } from 'antd';
 import { createStyles } from 'antd-style';
-import { AppWindowIcon, ChevronDownIcon, ChevronRightIcon, CodeIcon, FileDiffIcon, FolderIcon, FolderOpenIcon, GitBranchIcon, MessageSquareIcon, MoreHorizontalIcon, PlusIcon, SettingsIcon, TerminalSquareIcon, Trash2Icon } from 'lucide-react';
-import { memo, useCallback, useRef, useState } from 'react';
+import { AppWindowIcon, ChevronDownIcon, ChevronRightIcon, CodeIcon, FileDiffIcon, FolderIcon, FolderOpenIcon, GitBranchIcon, MessageSquareIcon, PlusIcon, SettingsIcon, TerminalSquareIcon, Trash2Icon } from 'lucide-react';
+import { memo, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SESSION_CHAT_URL } from '@/const/index';
@@ -18,108 +18,122 @@ import { SubAccountDashboard } from './SubAccountDashboard';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
   `,
   header: css`
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px 4px;
-    flex-shrink: 0;
+
+    padding-block: 8px 4px;
+    padding-inline: 12px;
   `,
   headerTitle: css`
     font-size: 12px;
     font-weight: 500;
     color: ${token.colorTextSecondary};
-    letter-spacing: 0.05em;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
   `,
   headerActions: css`
     display: flex;
     gap: 2px;
   `,
   scrollArea: css`
+    overflow: hidden auto;
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 4px 4px 12px;
+    padding-block: 4px 12px;
+    padding-inline: 4px;
   `,
   folderRow: css`
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    border-radius: 6px;
     cursor: pointer;
     user-select: none;
+
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
     min-height: 28px;
+    padding-block: 4px;
+    padding-inline: 8px;
+    border-radius: 6px;
 
     &:hover {
       background: ${token.colorFillQuaternary};
     }
 
     &:hover .folder-actions {
-      opacity: 1 !important;
       pointer-events: auto !important;
+      opacity: 1 !important;
     }
   `,
   folderIcon: css`
-    color: ${token.colorTextTertiary};
     flex-shrink: 0;
+    color: ${token.colorTextTertiary};
   `,
   folderName: css`
+    overflow: hidden;
     flex: 1;
+
     font-size: 13px;
     font-weight: 500;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   `,
   folderParent: css`
+    overflow: hidden;
+    flex-shrink: 0;
+
+    max-width: 80px;
+
     font-size: 11px;
     color: ${token.colorTextQuaternary};
-    flex-shrink: 0;
-    max-width: 80px;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   `,
   threadList: css`
-    margin-left: 20px;
-    border-left: 1px solid ${token.colorBorderSecondary};
-    padding-left: 8px;
-    margin-bottom: 4px;
+    margin-block-end: 4px;
+    margin-inline-start: 20px;
+    padding-inline-start: 8px;
+    border-inline-start: 1px solid ${token.colorBorderSecondary};
   `,
   threadRow: css`
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 6px;
-    border-radius: 5px;
     cursor: pointer;
+
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
     min-height: 26px;
+    padding-block: 3px;
+    padding-inline: 6px;
+    border-radius: 5px;
 
     &:hover {
       background: ${token.colorFillQuaternary};
     }
   `,
   threadTitle: css`
-    flex: 1;
-    font-size: 12px;
     overflow: hidden;
+    flex: 1;
+
+    font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
   `,
   threadTime: css`
+    flex-shrink: 0;
     font-size: 11px;
     color: ${token.colorTextQuaternary};
-    flex-shrink: 0;
   `,
   empty: css`
-    padding: 8px 12px;
+    padding-block: 8px;
+    padding-inline: 12px;
+
     font-size: 12px;
     color: ${token.colorTextQuaternary};
     text-align: center;
@@ -336,8 +350,8 @@ const WorkspaceSidebar = memo(() => {
                       />
                       <Dropdown
                         menu={{ items: plusMenu }}
-                        trigger={['click', 'hover']}
                         placement="bottomRight"
+                        trigger={['click', 'hover']}
                       >
                         <ActionIcon
                           icon={PlusIcon}
@@ -378,17 +392,17 @@ const WorkspaceSidebar = memo(() => {
 
       {/* Custom App Modal */}
       <Modal 
-        title="添加自定义应用" 
-        open={isAppModalOpen} 
+        cancelText="取消" 
+        okText="添加" 
+        open={isAppModalOpen}
+        title="添加自定义应用"
+        onCancel={() => setAppModalOpen(false)}
         onOk={() => {
           if (!newAppName.trim()) return;
           setCustomApps(prev => [...(prev || []), { id: Date.now().toString(), name: newAppName.trim(), appName: newAppName.trim() }]);
           setNewAppName('');
           setAppModalOpen(false);
         }}
-        onCancel={() => setAppModalOpen(false)}
-        okText="添加"
-        cancelText="取消"
       >
         <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--color-text-description)' }}>
           请输入 macOS 应用程序的确切名称（如 <code>Cursor</code>、<code>Xcode</code>、<code>WebStorm</code> 等），它将通过系统的 <code>open -a</code> 命令拉起：
@@ -429,8 +443,8 @@ export default WorkspaceSidebar;
 // ── ThreadItem ─────────────────────────────────────────────────────────────
 
 interface ThreadItemProps {
-  session: any;
   onNavigate: (sessionId: string, configId?: string) => void;
+  session: any;
 }
 
 const ThreadItem = memo<ThreadItemProps>(({ session, onNavigate }) => {

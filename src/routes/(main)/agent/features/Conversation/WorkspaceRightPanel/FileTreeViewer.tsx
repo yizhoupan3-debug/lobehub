@@ -1,26 +1,30 @@
 'use client';
 
-import { FolderOpen, FileText } from 'lucide-react';
-import { memo, useEffect, useState } from 'react';
 import { createStyles } from 'antd-style';
+import { FileText,FolderOpen } from 'lucide-react';
+import { memo, useEffect, useState } from 'react';
 
-import { useHomeStore } from '@/store/home';
 import { useGlobalStore } from '@/store/global';
+import { useHomeStore } from '@/store/home';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
-    padding: 8px;
-    height: 100%;
     overflow-y: auto;
+    height: 100%;
+    padding: 8px;
   `,
   item: css`
-    padding: 6px 8px;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+
     display: flex;
-    align-items: center;
     gap: 8px;
+    align-items: center;
+
+    padding-block: 6px;
+    padding-inline: 8px;
+    border-radius: 4px;
+
+    font-size: 13px;
     color: ${token.colorText};
     
     &:hover {
@@ -32,9 +36,9 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   empty: css`
     padding: 24px;
-    text-align: center;
-    color: ${token.colorTextDescription};
     font-size: 13px;
+    color: ${token.colorTextDescription};
+    text-align: center;
   `
 }));
 
@@ -79,11 +83,11 @@ const FileTreeViewer = memo(() => {
         <div className={styles.empty}>空文件夹</div>
       ) : (
         tree.map((item, idx) => (
-          <div key={idx} className={styles.item} onClick={() => handleFileClick(item)}>
+          <div className={styles.item} key={idx} onClick={() => handleFileClick(item)}>
             {item.type === 'dir' ? (
-              <FolderOpen size={14} className={styles.icon} />
+              <FolderOpen className={styles.icon} size={14} />
             ) : (
-              <FileText size={14} className={styles.icon} />
+              <FileText className={styles.icon} size={14} />
             )}
             {item.name}
           </div>

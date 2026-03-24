@@ -1,16 +1,16 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
 import { createStyles } from 'antd-style';
+import { memo, useEffect, useState } from 'react';
 
 import { useGlobalStore } from '@/store/global';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
-    height: 100%;
-    width: 100%;
-    background: ${token.colorBgLayout};
     overflow: auto;
+    width: 100%;
+    height: 100%;
+    background: ${token.colorBgLayout};
   `,
   iframe: css`
     width: 100%;
@@ -19,15 +19,16 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   textPreview: css`
     padding: 16px;
+
     font-family: monospace;
-    white-space: pre-wrap;
     font-size: 13px;
     color: ${token.colorText};
+    white-space: pre-wrap;
   `,
   error: css`
     padding: 24px;
-    text-align: center;
     color: ${token.colorError};
+    text-align: center;
   `
 }));
 
@@ -69,7 +70,7 @@ const DocumentPreviewer = memo(() => {
   if (isPdf) {
     return (
       <div className={styles.container}>
-        <iframe src={getMediaUrl()} className={styles.iframe} title="PDF Preview" />
+        <iframe className={styles.iframe} src={getMediaUrl()} title="PDF Preview" />
       </div>
     );
   }
@@ -77,7 +78,7 @@ const DocumentPreviewer = memo(() => {
   if (isImage) {
     return (
       <div className={styles.container} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-        <img src={getMediaUrl()} alt={file.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+        <img alt={file.title} src={getMediaUrl()} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
       </div>
     );
   }

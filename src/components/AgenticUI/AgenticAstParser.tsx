@@ -1,6 +1,5 @@
 import { Flexbox, Icon, Markdown } from '@lobehub/ui';
-import { cx } from 'antd-style';
-import { ChevronDown, ChevronRight, FileCode2, FolderTree, FileText } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileCode2, FileText,FolderTree } from 'lucide-react';
 import { useState } from 'react';
 
 import { useStyles } from './style';
@@ -85,7 +84,7 @@ const TimelineDetailContent = ({ content }: { content: string[] }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {blocks.map((block, i) => {
         if (block.type === 'thought') {
-          return <ThoughtBlock key={i} time={block.time} lines={block.lines} />;
+          return <ThoughtBlock key={i} lines={block.lines} time={block.time} />;
         }
         if (block.type === 'action') {
           return (
@@ -129,7 +128,7 @@ const TimelineStep = ({ step, isLast, expandAll }: { step: any, isLast: boolean,
   const { styles, cx } = useStyles();
   const [open, setOpen] = useState(false);
   
-  const hasContent = step.content.filter((c: string) => c.trim().length > 0).length > 0;
+  const hasContent = step.content.some((c: string) => c.trim().length > 0);
   const isOpen = expandAll || open;
 
   return (
@@ -170,7 +169,7 @@ export const AgenticAstParser = ({ content }: { content: string }) => {
            <div className={styles.sectionTitle}>Files Edited</div>
            <Flexbox horizontal gap={12} style={{ flexWrap: 'wrap', marginTop: 12, marginBottom: 12 }}>
              {files.map(f => (
-               <Flexbox horizontal align="center" gap={8} key={f} className={styles.fileChip}>
+               <Flexbox horizontal align="center" className={styles.fileChip} gap={8} key={f}>
                  <Icon icon={FileCode2} style={{ color: 'var(--color-primary)' }}/>
                  <span style={{ fontWeight: 600 }}>{f}</span>
                </Flexbox>
@@ -181,7 +180,7 @@ export const AgenticAstParser = ({ content }: { content: string }) => {
 
        {progressUpdates.length > 0 && (
          <div className={styles.sectionBlock} style={{ marginTop: 24 }}>
-           <Flexbox horizontal justify="space-between" align="center" style={{ marginBottom: 16 }}>
+           <Flexbox horizontal align="center" justify="space-between" style={{ marginBottom: 16 }}>
              <div className={styles.sectionTitle}>Progress Updates</div>
              <div className={styles.collapseAllBtn} onClick={() => setExpandAll(!expandAll)}>
                {expandAll ? 'Collapse all' : 'Expand all'} <Icon icon={ChevronDown} style={{ transform: expandAll ? 'rotate(180deg)' : 'none', transition: 'all 0.2s' }}/>
@@ -190,7 +189,7 @@ export const AgenticAstParser = ({ content }: { content: string }) => {
 
            <div className={styles.timelineRoot}>
              {progressUpdates.map((step, idx) => (
-               <TimelineStep key={idx} step={step} isLast={idx === progressUpdates.length - 1} expandAll={expandAll} />
+               <TimelineStep expandAll={expandAll} isLast={idx === progressUpdates.length - 1} key={idx} step={step} />
              ))}
            </div>
          </div>

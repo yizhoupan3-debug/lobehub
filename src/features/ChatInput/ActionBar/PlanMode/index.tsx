@@ -13,9 +13,9 @@ const PlanMode = memo(() => {
     <ActionIcon
       active={isPlanMode}
       icon={ListTodo}
-      onClick={() => togglePlanMode()}
       placement={'bottom'}
       title={t('input.planMode', 'Plan Mode')}
+      onClick={() => togglePlanMode()}
     />
   );
 });

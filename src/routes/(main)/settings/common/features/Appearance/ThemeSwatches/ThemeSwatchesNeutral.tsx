@@ -13,7 +13,7 @@ const ThemeSwatchesNeutral = memo<IProps>(({ value, onChange }) => {
 
   const handleSelect = (v: any) => {
     const customNeutrals = [
-      '#0a0a0a', '#000000', '#2e3440', '#282a36', '#272822',
+      '#131313', '#000000', '#2e3440', '#282a36', '#272822',
       '#0d1117', '#002b36', '#282828', '#282c34', '#1a1b26'
     ];
     const customNames = [
@@ -38,7 +38,7 @@ const ThemeSwatchesNeutral = memo<IProps>(({ value, onChange }) => {
           color: 'rgba(0, 0, 0, 0)',
           title: t('default'),
         },
-        { color: '#0a0a0a', title: t('cursor') },
+        { color: '#131313', title: t('cursor') },
         { color: '#000000', title: t('vercel') },
         { color: '#2e3440', title: t('nord') },
         { color: '#282a36', title: t('dracula') },
