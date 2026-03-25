@@ -29,23 +29,27 @@ export const ChatInputProvider = memo<ChatInputProviderProps>(
     const editor = useEditor();
     const slashMenuRef = useRef<HTMLDivElement>(null);
 
+    // Bug 9 fix: stabilize the store instance via ref.
+    // Dynamic props (onSend, leftActions, etc.) are synced through StoreUpdater,
+    // so the store itself never needs to be recreated after mount.
+    const storeRef = useRef<ReturnType<typeof createStore> | undefined>(undefined);
+    if (!storeRef.current) {
+      storeRef.current = createStore({
+        allowExpand,
+        editor,
+        leftActions,
+        mentionItems,
+        mobile,
+        rightActions,
+        sendButtonProps,
+        sendMenu,
+        slashMenuRef,
+        slashPlacement,
+      });
+    }
+
     return (
-      <Provider
-        createStore={() =>
-          createStore({
-            allowExpand,
-            editor,
-            leftActions,
-            mentionItems,
-            mobile,
-            rightActions,
-            sendButtonProps,
-            sendMenu,
-            slashMenuRef,
-            slashPlacement,
-          })
-        }
-      >
+      <Provider createStore={() => storeRef.current!}>
         <StoreUpdater
           agentId={agentId}
           allowExpand={allowExpand}

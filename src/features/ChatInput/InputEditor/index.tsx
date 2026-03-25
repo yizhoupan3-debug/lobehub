@@ -1,7 +1,14 @@
 import { isDesktop } from '@lobechat/const';
 import { HotkeyEnum, KeyEnum } from '@lobechat/types';
 import { isCommandPressed } from '@lobechat/utils';
-import { INSERT_MENTION_COMMAND, ReactMathPlugin, ReactSlashPlugin } from '@lobehub/editor';
+import {
+  type IEditor,
+  INSERT_MENTION_COMMAND,
+  type ISlashMenuOption,
+  ReactMathPlugin,
+  ReactSlashOption,
+  ReactSlashPlugin,
+} from '@lobehub/editor';
 import { Editor, FloatMenu, useEditorState } from '@lobehub/editor/react';
 import { combineKeys } from '@lobehub/ui';
 import { css, cx } from 'antd-style';
@@ -51,10 +58,14 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
 
   // Custom hotkey for Plan Mode (Shift+Tab+P)
   const togglePlanMode = useChatInputStore((s) => s.togglePlanMode);
-  useHotkeys('shift+tab+p', (e) => {
-    e.preventDefault();
-    togglePlanMode();
-  }, { enableOnFormTags: true, enableOnContentEditable: true });
+  useHotkeys(
+    'shift+tab+p',
+    (e) => {
+      e.preventDefault();
+      togglePlanMode();
+    },
+    { enableOnFormTags: true, enableOnContentEditable: true },
+  );
 
   const { compositionProps, isComposingRef } = useIMECompositionEvent();
 
@@ -93,6 +104,24 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
 
   const MentionMenuComp = useMemo(() => createMentionMenu(stateRef, categoriesRef), []);
 
+  // Bug 2 fix: stable callback — prevents Editor from reconciling mentionOption on every render.
+  const handleMentionSelect = useCallback((ed: IEditor, option: ISlashMenuOption) => {
+    if (option.metadata?.type === 'topic') {
+      ed.dispatchCommand(INSERT_REFER_TOPIC_COMMAND, {
+        topicId: option.metadata.topicId as string,
+        topicTitle: String(option.metadata.topicTitle ?? option.label),
+      });
+    } else {
+      ed.dispatchCommand(INSERT_MENTION_COMMAND, {
+        label: String(option.label),
+        metadata: option.metadata,
+      });
+    }
+  }, []);
+
+  // Bug 4 fix: rAF id ref for debouncing onChange markdown updates.
+  const rafIdRef = useRef<number | null>(null);
+
   const enableMention = allMentionItems.length > 0;
 
   // Get agent's model info for vision support check and handle paste upload
@@ -104,11 +133,14 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
   // Listen to editor's paste event for file uploads
   usePasteFile(editor, handleUploadFiles);
 
+  // Bug 3 fix: track isEmpty via ref to avoid re-registering listener on every keystroke.
+  const isEmptyRef = useRef(state.isEmpty);
+  isEmptyRef.current = state.isEmpty;
+
   useEffect(() => {
     const fn = (e: BeforeUnloadEvent) => {
-      if (!state.isEmpty) {
-        // set returnValue to trigger alert modal
-        // Note: No matter what value is set, the browser will display the standard text
+      if (!isEmptyRef.current) {
+        // Note: browsers always display their own standard text regardless of assigned value
         e.returnValue = 'You are typing something, are you sure you want to leave?';
       }
     };
@@ -116,13 +148,14 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
     return () => {
       window.removeEventListener('beforeunload', fn);
     };
-  }, [state.isEmpty]);
+  }, []);
 
   const enableRichRender = useUserStore(labPreferSelectors.enableInputMarkdown);
 
   const slashActionItems = useSlashActionItems();
   const codexSkillItems = useCodexSkillItems();
-  
+
+  // Bug 1 fix: codexSkillItems must be in deps so the callback reflects the latest skill list.
   const slashItems = useCallback(
     async (
       search: { leadOffset: number; matchingString: string; replaceableString: string } | null,
@@ -132,7 +165,8 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
 
       return actionItems;
     },
-    [slashActionItems],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slashActionItems, codexSkillItems],
   );
 
   const richRenderProps = useMemo(
@@ -180,7 +214,11 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
                 if (mention.metadata?.type === 'topic') {
                   return `<refer_topic name="${mention.metadata.topicTitle}" id="${mention.metadata.topicId}" />`;
                 }
-                if (['file', 'task', 'walkthrough', 'implementation_plan'].includes(mention.metadata?.type as string)) {
+                if (
+                  ['file', 'task', 'walkthrough', 'implementation_plan'].includes(
+                    mention.metadata?.type as string,
+                  )
+                ) {
                   return `<refer_${mention.metadata?.type} path="${mention.metadata?.path}" name="${mention.label}" />`;
                 }
                 if (mention.metadata?.type === 'conversation') {
@@ -189,19 +227,8 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
                 return `<mention name="${mention.label}" id="${mention.metadata?.id}" />`;
               },
               maxLength: 50,
-              onSelect: (editor, option) => {
-                if (option.metadata?.type === 'topic') {
-                  editor.dispatchCommand(INSERT_REFER_TOPIC_COMMAND, {
-                    topicId: option.metadata.topicId as string,
-                    topicTitle: String(option.metadata.topicTitle ?? option.label),
-                  });
-                } else {
-                  editor.dispatchCommand(INSERT_MENTION_COMMAND, {
-                    label: String(option.label),
-                    metadata: option.metadata,
-                  });
-                }
-              },
+              // Bug 2 fix: extracted as stable callback to prevent Editor re-reconciliation on every render.
+              onSelect: handleMentionSelect,
               renderComp: MentionMenuComp,
             }
           : undefined
@@ -219,7 +246,13 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
         disableScope(HotkeyEnum.AddUserMessage);
       }}
       onChange={() => {
-        updateMarkdownContent();
+        // Bug 4 fix: rAF debounce — cancel previous scheduled update, reschedule.
+        // This limits markdown parsing to at most once per animation frame during fast typing.
+        if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null;
+          updateMarkdownContent();
+        });
       }}
       onContextMenu={async ({ event: e, editor }) => {
         if (isDesktop) {
@@ -255,7 +288,10 @@ const InputEditor = memo<{ defaultRows?: number }>(({ defaultRows = 2 }) => {
         }
       }}
     >
-      <ReactSlashPlugin items={codexSkillItems} trigger="$" />
+      {/* Bug fix: items/trigger belong to ReactSlashOption, not ReactSlashPlugin */}
+      <ReactSlashPlugin>
+        <ReactSlashOption items={codexSkillItems} trigger="$" />
+      </ReactSlashPlugin>
     </Editor>
   );
 });

@@ -47,10 +47,10 @@ export const store: CreateStore = (publicState) => (set, get) => ({
       isPlanMode: get().isPlanMode || false,
       isSubagentMode: get().isSubagentMode || false,
     });
+    // Bug 5 fix: single rAF is sufficient after React layout effects;
+    // read editor via get() snapshot to avoid stale closure.
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        editor.focus();
-      });
+      get().editor?.focus();
     });
   },
 

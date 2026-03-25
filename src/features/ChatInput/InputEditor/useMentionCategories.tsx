@@ -1,5 +1,13 @@
 import { Avatar, Icon } from '@lobehub/ui';
-import { BookOpen, Bot, FileText, ListTodo, MessageSquare,MessageSquareText, Users } from 'lucide-react';
+import {
+  BookOpen,
+  Bot,
+  FileText,
+  ListTodo,
+  MessageSquare,
+  MessageSquareText,
+  Users,
+} from 'lucide-react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 
@@ -33,11 +41,21 @@ export const useMentionCategories = (): MentionCategory[] => {
   const externalMentionItems = useChatInputStore((s) => s.mentionItems);
   const isGroupChat = !!externalMentionItems;
 
-  const { data: codexCategories } = useSWR('/api/codex/mentions', async (url) => {
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    return res.json();
-  });
+  // Bug 7 fix: dedup for 60 s and disable revalidation on focus to prevent mention list
+  // flickering during fast typing or tab switching.
+  const { data: codexCategories } = useSWR(
+    '/api/codex/mentions',
+    async (url) => {
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    {
+      dedupingInterval: 60_000,
+      fallbackData: [],
+      revalidateOnFocus: false,
+    },
+  );
 
   return useMemo(() => {
     const categories: MentionCategory[] = [];
@@ -145,5 +163,13 @@ export const useMentionCategories = (): MentionCategory[] => {
     }
 
     return categories;
-  }, [allAgents, currentAgentId, topics, activeTopicId, isGroupChat, externalMentionItems, codexCategories]);
+  }, [
+    allAgents,
+    currentAgentId,
+    topics,
+    activeTopicId,
+    isGroupChat,
+    externalMentionItems,
+    codexCategories,
+  ]);
 };

@@ -24,6 +24,7 @@ export const useChatInputEditor = () => {
       s.setDocument,
     ]);
 
+  // Bug 6 fix: include all actions in deps (they are stable zustand refs, so no overhead).
   return useMemo<ChatInputEditor>(
     () => ({
       clearContent: () => {
@@ -39,6 +40,6 @@ export const useChatInputEditor = () => {
       setExpand,
       setJSONState,
     }),
-    [editor],
+    [editor, getMarkdownContent, getJSONState, setExpand, setJSONState, setDocument],
   );
 };

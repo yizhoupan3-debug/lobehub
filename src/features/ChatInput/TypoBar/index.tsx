@@ -118,7 +118,28 @@ const TypoBar = memo(() => {
           onClick: editorState.codeblock,
         },
       ].filter(Boolean) as ChatInputActionsProps['items'],
-    [editorState],
+    // Bug 8 fix: editorState is a new object on each editor event; use granular field deps
+    // so useMemo can actually bail out when nothing changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      editorState.isBold,
+      editorState.isItalic,
+      editorState.isUnderline,
+      editorState.isStrikethrough,
+      editorState.isBlockquote,
+      editorState.isCode,
+      editorState.bold,
+      editorState.italic,
+      editorState.underline,
+      editorState.strikethrough,
+      editorState.blockquote,
+      editorState.code,
+      editorState.bulletList,
+      editorState.numberList,
+      editorState.checkList,
+      editorState.codeblock,
+      editorState.insertMath,
+    ],
   );
 
   return (
